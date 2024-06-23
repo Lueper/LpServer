@@ -1,0 +1,53 @@
+﻿// 비동기 서버
+
+#include "LpServer.h"
+
+using namespace boost;
+
+LpServer::LpServer() {
+    m_ioService = new asio::io_service();
+    m_endpoint = new asio::ip::tcp::endpoint(asio::ip::address_v6::any(), 8080);
+    m_socket = new asio::ip::tcp::socket(*m_ioService);
+    m_acceptor = new asio::ip::tcp::acceptor(*m_ioService, *m_endpoint);
+}
+
+LpServer::~LpServer() {
+    delete m_ioService;
+    delete m_endpoint;
+    delete m_socket;
+    delete m_acceptor;
+    delete m_ioWork;
+    delete m_resolver;
+}
+
+void LpServer::Run() {
+    Accept();
+
+    m_ioService->run();
+}
+
+void LpServer::Accept() {
+    m_acceptor->async_accept(*m_socket
+                , std::bind(&LpServer::OnAccept, this, std::placeholders::_1));
+}
+
+void LpServer::OnAccept(const system::error_code& _error) {
+    if (_error.value() != 0) {
+        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
+        return;
+    }
+
+    Read();
+}
+
+void LpServer::Read() {
+    memset(&m_recvBuffer, '\0', sizeof(m_recvBuffer));
+
+    m_socket->async_read_some(
+
+    );
+}
+
+void LpServer::OnRead(size_t _size, const system::error_code& _error) {
+
+}

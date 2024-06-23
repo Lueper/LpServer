@@ -12,6 +12,8 @@ LpServer::LpServer() {
 }
 
 LpServer::~LpServer() {
+    Close();
+
     delete m_ioService;
     delete m_endpoint;
     delete m_socket;
@@ -34,10 +36,16 @@ void LpServer::Accept() {
 void LpServer::OnAccept(const system::error_code& _error) {
     if (_error.value() != 0) {
         std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
+
         return;
     }
 
     Read();
+}
+
+void LpServer::Close() {
+    if (m_socket->is_open())
+        m_socket->close();
 }
 
 void LpServer::Read() {
@@ -50,6 +58,10 @@ void LpServer::Read() {
 void LpServer::OnRead(const system::error_code& _error) {
     if (_error.value() != 0) {
         std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
+
+        Close();
+        Accept();
+
         return;
     }
 
@@ -58,4 +70,24 @@ void LpServer::OnRead(const system::error_code& _error) {
     ///////////////////
 
     Read();
+}
+
+void LpServer::Write() {
+    memset(&m_sendBuffer, '\0', sizeof(m_sendBuffer));
+
+    asio::async_write(*m_socket
+            , asio::buffer(m_sendBuffer, g_bufferSize)
+            , std::bind(&LpServer::OnWrite, this, std::placeholders::_1));
+}
+
+void LpServer::OnWrite(const system::error_code& _error) {
+    if (_error.value() != 0) {
+        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
+
+        return;
+    }
+
+    // TODO: 쓰기 작업
+    // 
+    ///////////////////
 }

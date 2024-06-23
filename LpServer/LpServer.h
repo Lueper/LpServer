@@ -22,8 +22,11 @@ public:
 
 	void Accept();
 	void OnAccept(const system::error_code& _error);
+	void Close();
 	void Read();
 	void OnRead(const system::error_code& _error);
+	void Write();
+	void OnWrite(const system::error_code& _error);
 
 	asio::io_service* GetIoService() { return m_ioService; };
 
@@ -36,4 +39,5 @@ private:
 	asio::ip::tcp::resolver* m_resolver = nullptr;
 
 	char m_recvBuffer[g_bufferSize];
+	char m_sendBuffer[g_bufferSize];
 };

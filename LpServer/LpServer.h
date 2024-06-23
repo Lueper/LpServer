@@ -23,7 +23,7 @@ public:
 	void Accept();
 	void OnAccept(const system::error_code& _error);
 	void Read();
-	void OnRead(size_t _size, const system::error_code& _error);
+	void OnRead(const system::error_code& _error);
 
 	asio::io_service* GetIoService() { return m_ioService; };
 

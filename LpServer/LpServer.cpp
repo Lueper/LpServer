@@ -43,11 +43,19 @@ void LpServer::OnAccept(const system::error_code& _error) {
 void LpServer::Read() {
     memset(&m_recvBuffer, '\0', sizeof(m_recvBuffer));
 
-    m_socket->async_read_some(
-
-    );
+    m_socket->async_read_some(asio::buffer(m_recvBuffer, g_bufferSize)
+                , std::bind(&LpServer::OnRead, this, std::placeholders::_1));
 }
 
-void LpServer::OnRead(size_t _size, const system::error_code& _error) {
+void LpServer::OnRead(const system::error_code& _error) {
+    if (_error.value() != 0) {
+        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
+        return;
+    }
 
+    // TODO: 읽기 작업
+    // 
+    ///////////////////
+
+    Read();
 }

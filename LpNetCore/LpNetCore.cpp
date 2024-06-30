@@ -5,10 +5,6 @@
 #include "framework.h"
 #include "LpNetCore.h"
 
-namespace lpnet {
-
 class LpNetCore {
 
 };
-
-}

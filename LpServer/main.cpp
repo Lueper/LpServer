@@ -4,7 +4,7 @@
 
 int main() {
 
-    LpServer lpServer;
+    LpServer lpServer("127.0.0.1", 5000);
 
     try {
         lpServer.Run();

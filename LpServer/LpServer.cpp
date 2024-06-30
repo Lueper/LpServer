@@ -5,89 +5,92 @@
 using namespace boost;
 
 LpServer::LpServer() {
-    m_ioService = new asio::io_service();
-    m_endpoint = new asio::ip::tcp::endpoint(asio::ip::address_v6::any(), 8080);
-    m_socket = new asio::ip::tcp::socket(*m_ioService);
-    m_acceptor = new asio::ip::tcp::acceptor(*m_ioService, *m_endpoint);
+    m_acceptor = new lpnet::LpAcceptor();
+}
+
+LpServer::LpServer(const std::string ip, uint16_t port) {
+    m_acceptor = new lpnet::LpAcceptor();
+    m_acceptor->Bind(ip, port);
 }
 
 LpServer::~LpServer() {
-    Close();
 
-    delete m_ioService;
-    delete m_endpoint;
-    delete m_socket;
-    delete m_acceptor;
-    delete m_ioWork;
-    delete m_resolver;
 }
 
 void LpServer::Run() {
-    Accept();
 
-    m_ioService->run();
+    m_acceptor->Listen();
+
+    m_acceptor->Accept(m_socket.GetSocket());
+
+    // 이벤트가 없을 때까지 대기
+    lpnet::LpIOContext::Instance().Run();
 }
 
-void LpServer::Accept() {
-    m_acceptor->async_accept(*m_socket
-                , std::bind(&LpServer::OnAccept, this, std::placeholders::_1));
-}
+#pragma region Accept & Close
+//void LpServer::Accept() {
+//    m_acceptor->async_accept(*m_socket
+//                , std::bind(&LpServer::OnAccept, this, std::placeholders::_1));
+//}
+//
+//void LpServer::OnAccept(const system::error_code& _error) {
+//    if (_error.value() != 0) {
+//        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
+//
+//        return;
+//    }
+//
+//    Read();
+//}
+//
+//void LpServer::Close() {
+//    if (m_socket->is_open())
+//        m_socket->close();
+//}
+#pragma endregion
 
-void LpServer::OnAccept(const system::error_code& _error) {
-    if (_error.value() != 0) {
-        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
-
-        return;
-    }
-
-    Read();
-}
-
-void LpServer::Close() {
-    if (m_socket->is_open())
-        m_socket->close();
-}
-
-void LpServer::Read() {
-    memset(&m_recvBuffer, '\0', sizeof(m_recvBuffer));
-
-    m_socket->async_read_some(asio::buffer(m_recvBuffer, g_bufferSize)
-                , std::bind(&LpServer::OnRead, this, std::placeholders::_1));
-}
-
-void LpServer::OnRead(const system::error_code& _error) {
-    if (_error.value() != 0) {
-        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
-
-        Close();
-        Accept();
-
-        return;
-    }
-
-    // TODO: 읽기 작업
-    // 
-    ///////////////////
-
-    Read();
-}
-
-void LpServer::Write() {
-    memset(&m_sendBuffer, '\0', sizeof(m_sendBuffer));
-
-    asio::async_write(*m_socket
-            , asio::buffer(m_sendBuffer, g_bufferSize)
-            , std::bind(&LpServer::OnWrite, this, std::placeholders::_1));
-}
-
-void LpServer::OnWrite(const system::error_code& _error) {
-    if (_error.value() != 0) {
-        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
-
-        return;
-    }
-
-    // TODO: 쓰기 작업
-    // 
-    ///////////////////
-}
+#pragma region Read & Write
+//void LpServer::Read() {
+//    memset(&m_recvBuffer, '\0', sizeof(m_recvBuffer));
+//
+//    m_socket->async_read_some(asio::buffer(m_recvBuffer, g_bufferSize)
+//                , std::bind(&LpServer::OnRead, this, std::placeholders::_1));
+//}
+//
+//void LpServer::OnRead(const system::error_code& _error) {
+//    if (_error.value() != 0) {
+//        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
+//
+//        Close();
+//        Accept();
+//
+//        return;
+//    }
+//
+//    // TODO: 읽기 작업
+//    // 
+//    ///////////////////
+//
+//    Read();
+//}
+//
+//void LpServer::Write() {
+//    memset(&m_sendBuffer, '\0', sizeof(m_sendBuffer));
+//
+//    asio::async_write(*m_socket
+//            , asio::buffer(m_sendBuffer, g_bufferSize)
+//            , std::bind(&LpServer::OnWrite, this, std::placeholders::_1));
+//}
+//
+//void LpServer::OnWrite(const system::error_code& _error) {
+//    if (_error.value() != 0) {
+//        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
+//
+//        return;
+//    }
+//
+//    // TODO: 쓰기 작업
+//    // 
+//    ///////////////////
+//}
+#pragma endregion

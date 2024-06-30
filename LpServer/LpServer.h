@@ -1,6 +1,9 @@
 #pragma once
 
+#pragma comment (lib, "LpNetCore.lib")
+
 #include <iostream>
+#include <string>
 #include <memory>
 
 #include "LpNetCore.h"
@@ -13,31 +16,14 @@ using namespace boost;
 
 class LpServer {
 public:
-	static const size_t g_bufferSize = 16384;
-
 	LpServer();
+	LpServer(const std::string ip, uint16_t port);
 	~LpServer();
 
 	void Run();
 
-	void Accept();
-	void OnAccept(const system::error_code& _error);
-	void Close();
-	void Read();
-	void OnRead(const system::error_code& _error);
-	void Write();
-	void OnWrite(const system::error_code& _error);
-
-	asio::io_service* GetIoService() { return m_ioService; };
-
 private:
-	asio::io_service* m_ioService = nullptr;
-	asio::ip::tcp::endpoint* m_endpoint = nullptr;
-	asio::ip::tcp::socket* m_socket = nullptr;
-	asio::ip::tcp::acceptor* m_acceptor = nullptr;
-	asio::io_service::work* m_ioWork = nullptr;
-	asio::ip::tcp::resolver* m_resolver = nullptr;
-
-	char m_recvBuffer[g_bufferSize];
-	char m_sendBuffer[g_bufferSize];
+	//std::vector<lpnet::LpAcceptor> m_vecAcceptor;
+	lpnet::LpAcceptor* m_acceptor = nullptr;
+	lpnet::LpSocket m_socket;
 };

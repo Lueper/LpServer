@@ -17,7 +17,7 @@ using namespace boost;
 class LpServer {
 public:
 	LpServer();
-	LpServer(const std::string ip, uint16_t port);
+	LpServer(const std::string _ip, uint16_t _port);
 	~LpServer();
 
 	void Run();
@@ -25,5 +25,5 @@ public:
 private:
 	//std::vector<lpnet::LpAcceptor> m_vecAcceptor;
 	lpnet::LpAcceptor* m_acceptor = nullptr;
-	lpnet::LpSocket m_socket;
+	//lpnet::LpSession m_session;
 };

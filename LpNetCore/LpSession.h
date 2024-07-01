@@ -1,15 +1,18 @@
 #pragma once
 
 #include "LpNetCore.h"
-#include "LpIOContext.h"
 
 namespace lpnet {
 	using namespace boost;
-class LpSocket
-{
+class LpSession {
 public:
-	LpSocket();
-	~LpSocket();
+	LpSession();
+	~LpSession();
+
+	void Read();
+	void OnRead();
+	void Write();
+	void OnWrite();
 
 	asio::ip::tcp::socket& GetSocket();
 private:

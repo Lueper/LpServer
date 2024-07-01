@@ -10,40 +10,43 @@ LpAcceptor::~LpAcceptor() {
 
 }
 
-void LpAcceptor::Bind(const std::string ip, uint16_t port) {
-	boost::system::error_code error;
+void LpAcceptor::Bind(const std::string _ip, uint16_t _port) {
+	system::error_code error;
 
-	asio::ip::address address = asio::ip::make_address(ip);
-	asio::ip::tcp::endpoint endpoint(address, port);
+	asio::ip::address address = asio::ip::make_address(_ip);
+	asio::ip::tcp::endpoint endpoint(address, _port);
 	m_acceptor.open(endpoint.protocol(), error);
-	m_acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+	m_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 	m_acceptor.bind(endpoint, error);
 
 	std::cout << "[Info] Bind Success.\n";
 }
 
-void LpAcceptor::Listen(int32_t backLog) {
-	m_acceptor.listen(backLog);
+void LpAcceptor::Listen(int32_t _backLog) {
+	m_acceptor.listen(_backLog);
 
-	std::cout << "[Info] Listen.\n";
+	std::cout << "[Info] Listen...\n";
 }
 
-void LpAcceptor::Accept(asio::ip::tcp::socket& socket) {
-	m_acceptor.async_accept(socket
-		, std::bind(&LpAcceptor::OnAccept, this, std::placeholders::_1));
+void LpAcceptor::AsyncAccept() {
+	LpSession* session = new LpSession();
+	
+	m_acceptor.async_accept(session->GetSocket()
+		, std::bind(&LpAcceptor::OnAccept, this, session, std::placeholders::_1));
 
-	std::cout << "[Info] Accept.\n";
+	std::cout << "[Info] Accept...\n";
 }
 
-void LpAcceptor::OnAccept(const system::error_code& error) {
-	if (error.value() != 0) {
-		std::cout << "Accpet Fail : [value: " << error.value() << "][msg: " << error.message() << "]";
+void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error) {
+	if (!_error) {
+		std::cout << "[Info] OnAccept.";
 
-        return;
+		_session->Read();
     }
 
-	std::cout << "[Info] OnAccept.";
-	// Read!
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	AsyncAccept();
 }
 
 void LpAcceptor::Close() {

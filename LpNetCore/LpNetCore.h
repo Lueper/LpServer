@@ -6,7 +6,8 @@
 #include "boost/bind.hpp"
 #include "boost/system.hpp"
 
+#include "LpIOContext.h"
+#include "LpSession.h"
 #include "LpAcceptor.h"
-#include "LpSocket.h"
 
 using namespace boost;

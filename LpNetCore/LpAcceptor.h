@@ -1,7 +1,6 @@
 #pragma once
 
 #include "LpNetCore.h"
-#include "LpIOContext.h"
 
 namespace lpnet {
 	using namespace boost;
@@ -10,10 +9,10 @@ public:
 	LpAcceptor();
 	~LpAcceptor();
 
-	void Bind(const std::string ip, uint16_t port);
-	void Listen(int32_t backLog = asio::ip::tcp::acceptor::max_listen_connections);
-	void Accept(asio::ip::tcp::socket& socket);
-	void OnAccept(const system::error_code& _error);
+	void Bind(const std::string _ip, uint16_t _port);
+	void Listen(int32_t _backLog = asio::ip::tcp::acceptor::max_listen_connections);
+	void AsyncAccept();
+	void OnAccept(LpSession* _session, const system::error_code& _error);
 	void Close();
 
 private:

@@ -8,9 +8,9 @@ LpServer::LpServer() {
     m_acceptor = new lpnet::LpAcceptor();
 }
 
-LpServer::LpServer(const std::string ip, uint16_t port) {
+LpServer::LpServer(const std::string _ip, uint16_t _port) {
     m_acceptor = new lpnet::LpAcceptor();
-    m_acceptor->Bind(ip, port);
+    m_acceptor->Bind(_ip, _port);
 }
 
 LpServer::~LpServer() {
@@ -18,10 +18,10 @@ LpServer::~LpServer() {
 }
 
 void LpServer::Run() {
+    // m_acceptor->Listen();
 
-    m_acceptor->Listen();
-
-    m_acceptor->Accept(m_socket.GetSocket());
+    // Accept 될 때까지 대기
+    m_acceptor->AsyncAccept();
 
     // 이벤트가 없을 때까지 대기
     lpnet::LpIOContext::Instance().Run();

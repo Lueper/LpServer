@@ -9,6 +9,7 @@ public:
 	LpSession();
 	~LpSession();
 
+	void Close();
 	void Read();
 	void OnRead();
 	void Write();

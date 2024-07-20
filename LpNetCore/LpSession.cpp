@@ -10,8 +10,17 @@ LpSession::~LpSession() {
 
 }
 
+void LpSession::Close() {
+	if (m_socket.is_open()) {
+		m_socket.close();
+
+		std::cout << "[Info][LpSession] Close." << "\n";
+	}
+}
+
 void LpSession::Read() {
 	// TODO: 읽기 작업
+	std::cout << "[Info][LpSession] Read." << "\n";
 }
 
 void OnRead() {

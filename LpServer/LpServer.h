@@ -8,10 +8,6 @@
 
 #include "LpNetCore.h"
 
-#include "boost/asio.hpp"
-#include "boost/bind.hpp"
-#include "boost/system.hpp"
-
 using namespace boost;
 
 class LpServer {

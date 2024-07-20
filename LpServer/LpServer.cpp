@@ -18,9 +18,10 @@ LpServer::~LpServer() {
 }
 
 void LpServer::Run() {
-    // m_acceptor->Listen();
+    // 클라이언트 연결 대기
+    m_acceptor->Listen();
 
-    // Accept 될 때까지 대기
+    // 비동기 승인 시작
     m_acceptor->AsyncAccept();
 
     // 이벤트가 없을 때까지 대기

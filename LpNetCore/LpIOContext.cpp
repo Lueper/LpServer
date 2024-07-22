@@ -15,19 +15,19 @@ LpIOContext::~LpIOContext() {
 }
 
 void LpIOContext::Run() {
-	std::cout << "[Info][LpIOContext] Run.\n";
+	std::cout << "[Info]#LpIOContext : Run.\n";
 
 	m_ioContext.run();
 }
 
 void LpIOContext::Stop() {
-	std::cout << "[Info][LpIOContext] Stop.\n";
+	std::cout << "[Info]#LpIOContext : Stop.\n";
 
 	m_ioContext.stop();
 }
 
 void LpIOContext::Restart() {
-	std::cout << "[Info][LpIOContext] Restart.\n";
+	std::cout << "[Info]#LpIOContext : Restart.\n";
 
 	m_ioContext.restart();
 }

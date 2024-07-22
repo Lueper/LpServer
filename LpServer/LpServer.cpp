@@ -14,7 +14,27 @@ LpServer::LpServer(const std::string _ip, uint16_t _port) {
 }
 
 LpServer::~LpServer() {
+    delete m_acceptor;
+}
 
+void LpServer::LoadFile(std::string _filePath) {
+    try {
+#ifdef _DEBUG
+        YAML::Node config = YAML::LoadFile(_filePath)["Debug"];
+#else
+        YAML::Node config = YAML::LoadFile(_filePath)["Release"];
+#endif
+        SetThreadCount(config["Server"]["ThreadCount"].as<uint32_t>());
+        SetIOPoolSize(config["Server"]["IOPoolSize"].as<uint32_t>());
+
+        std::cout << "[Info]#YAML : Load Config file is Success" << "\n";
+    }
+    catch (const YAML::BadFile& e) {
+        std::cerr << e.msg << std::endl;
+    }
+    catch (const YAML::ParserException& e) {
+        std::cerr << e.msg << std::endl;
+    }
 }
 
 void LpServer::Run() {

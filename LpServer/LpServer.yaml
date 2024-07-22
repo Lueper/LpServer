@@ -1,0 +1,4 @@
+Debug:
+  Server:
+    ThreadCount: 4
+    PoolSize: 1000

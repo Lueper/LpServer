@@ -24,7 +24,7 @@ int main() {
     lpServer.LoadFile("config/LpServer.yaml");
 
     try {
-        lpServer.Run();
+        lpServer.Start();
     }
     catch (std::exception& e)
     {

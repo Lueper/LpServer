@@ -37,7 +37,7 @@ void LpServer::LoadFile(std::string _filePath) {
     }
 }
 
-void LpServer::Run() {
+void LpServer::Start() {
     // 클라이언트 연결 대기
     m_acceptor->Listen();
 
@@ -45,6 +45,18 @@ void LpServer::Run() {
     m_acceptor->AsyncAccept();
 
     // 이벤트가 없을 때까지 대기
+    for (uint32_t i = 0; i < m_threadCount; i++) {
+        m_ThreadVector.emplace_back(std::thread {
+                std::bind(&LpServer::Run, this)
+        });
+    }
+
+    for (auto& thread : m_ThreadVector) {
+        thread.join();
+    }
+}
+
+void LpServer::Run() {
     lpnet::LpIOContext::Instance().Run();
 }
 

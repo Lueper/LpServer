@@ -23,12 +23,13 @@ public:
 
 	void LoadFile(std::string _filePath);
 
+	void Start();
 	void Run();
 
 private:
 	uint32_t m_threadCount = 0;
 	uint32_t m_ioPoolSize = 0;
 
-	//std::vector<lpnet::LpAcceptor> m_vecAcceptor;
 	lpnet::LpAcceptor* m_acceptor = nullptr;
+	std::vector<std::thread> m_ThreadVector;
 };

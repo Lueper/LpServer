@@ -19,7 +19,7 @@ public:
 	~LpServer();
 
 	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; }
-	void SetIOPoolSize(uint32_t _poolSize) { m_ioPoolSize = _poolSize; }
+	void SetIOBufferSize(uint32_t _ioBufferSize) { m_ioBufferSize = _ioBufferSize; }
 
 	void LoadFile(std::string _filePath);
 
@@ -28,7 +28,7 @@ public:
 
 private:
 	uint32_t m_threadCount = 0;
-	uint32_t m_ioPoolSize = 0;
+	uint32_t m_ioBufferSize = 0;
 
 	lpnet::LpAcceptor* m_acceptor = nullptr;
 	std::vector<std::thread> m_ThreadVector;

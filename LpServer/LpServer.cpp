@@ -25,7 +25,7 @@ void LpServer::LoadFile(std::string _filePath) {
         YAML::Node config = YAML::LoadFile(_filePath)["Release"];
 #endif
         SetThreadCount(config["Server"]["ThreadCount"].as<uint32_t>());
-        SetIOPoolSize(config["Server"]["IOPoolSize"].as<uint32_t>());
+        SetIOBufferSize(config["Server"]["IOBufferSize"].as<uint32_t>());
 
         std::cout << "[Info]#YAML : Load Config file is Success" << "\n";
     }
@@ -59,71 +59,3 @@ void LpServer::Start() {
 void LpServer::Run() {
     lpnet::LpIOContext::Instance().Run();
 }
-
-#pragma region Accept & Close
-//void LpServer::Accept() {
-//    m_acceptor->async_accept(*m_socket
-//                , std::bind(&LpServer::OnAccept, this, std::placeholders::_1));
-//}
-//
-//void LpServer::OnAccept(const system::error_code& _error) {
-//    if (_error.value() != 0) {
-//        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
-//
-//        return;
-//    }
-//
-//    Read();
-//}
-//
-//void LpServer::Close() {
-//    if (m_socket->is_open())
-//        m_socket->close();
-//}
-#pragma endregion
-
-#pragma region Read & Write
-//void LpServer::Read() {
-//    memset(&m_recvBuffer, '\0', sizeof(m_recvBuffer));
-//
-//    m_socket->async_read_some(asio::buffer(m_recvBuffer, g_bufferSize)
-//                , std::bind(&LpServer::OnRead, this, std::placeholders::_1));
-//}
-//
-//void LpServer::OnRead(const system::error_code& _error) {
-//    if (_error.value() != 0) {
-//        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
-//
-//        Close();
-//        Accept();
-//
-//        return;
-//    }
-//
-//    // TODO: 읽기 작업
-//    // 
-//    ///////////////////
-//
-//    Read();
-//}
-//
-//void LpServer::Write() {
-//    memset(&m_sendBuffer, '\0', sizeof(m_sendBuffer));
-//
-//    asio::async_write(*m_socket
-//            , asio::buffer(m_sendBuffer, g_bufferSize)
-//            , std::bind(&LpServer::OnWrite, this, std::placeholders::_1));
-//}
-//
-//void LpServer::OnWrite(const system::error_code& _error) {
-//    if (_error.value() != 0) {
-//        std::cout << "Accpet Fail : [value: " << _error.value() << "][msg: " << _error.message() << "]";
-//
-//        return;
-//    }
-//
-//    // TODO: 쓰기 작업
-//    // 
-//    ///////////////////
-//}
-#pragma endregion

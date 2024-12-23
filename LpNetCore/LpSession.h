@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LpNetCore.h"
+#include "LpBuffer.h"
 
 namespace lpnet {
 	using namespace boost;
@@ -19,7 +20,9 @@ public:
 private:
 	asio::ip::tcp::socket m_socket;
 
-	char* m_recvBuffer = nullptr;
-	char* m_sendBuffer = nullptr;
+	LpBuffer m_recvBuffer;
+	LpBuffer m_sendBuffer;
+
+	uint16_t MAX_SIZE = 8196;
 };
 }

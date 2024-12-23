@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma comment (lib, "LpUtility.lib")
+
 #include <iostream>
 
 #include "boost/asio.hpp"
@@ -9,5 +11,7 @@
 #include "LpIOContext.h"
 #include "LpSession.h"
 #include "LpAcceptor.h"
+
+#include "LpUtility.h"
 
 using namespace boost;

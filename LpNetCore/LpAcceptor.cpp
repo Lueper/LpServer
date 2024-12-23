@@ -39,7 +39,7 @@ void LpAcceptor::AsyncAccept() {
 
 void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error) {
 	if (!_error) {
-		std::cout << "[Info]#LpAcceptor : OnAccept.";
+		std::cout << "[Info]#LpAcceptor : OnAccept.\n";
 
 		_session->Read();
     }

@@ -6,9 +6,15 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LpServer", "LpServer\LpServer.vcxproj", "{D194B018-B094-4FF0-83C7-235EA6D5B8C9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{053068D7-3805-4F1F-9089-B67EADADCC08} = {053068D7-3805-4F1F-9089-B67EADADCC08}
+		{1E1E19A6-C076-4771-B5C2-5250FFC6771B} = {1E1E19A6-C076-4771-B5C2-5250FFC6771B}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LpNetCore", "LpNetCore\LpNetCore.vcxproj", "{053068D7-3805-4F1F-9089-B67EADADCC08}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1E1E19A6-C076-4771-B5C2-5250FFC6771B} = {1E1E19A6-C076-4771-B5C2-5250FFC6771B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LpUtility", "LpUtility\LpUtility.vcxproj", "{1E1E19A6-C076-4771-B5C2-5250FFC6771B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +40,14 @@ Global
 		{053068D7-3805-4F1F-9089-B67EADADCC08}.Release|x64.Build.0 = Release|x64
 		{053068D7-3805-4F1F-9089-B67EADADCC08}.Release|x86.ActiveCfg = Release|Win32
 		{053068D7-3805-4F1F-9089-B67EADADCC08}.Release|x86.Build.0 = Release|Win32
+		{1E1E19A6-C076-4771-B5C2-5250FFC6771B}.Debug|x64.ActiveCfg = Debug|x64
+		{1E1E19A6-C076-4771-B5C2-5250FFC6771B}.Debug|x64.Build.0 = Debug|x64
+		{1E1E19A6-C076-4771-B5C2-5250FFC6771B}.Debug|x86.ActiveCfg = Debug|Win32
+		{1E1E19A6-C076-4771-B5C2-5250FFC6771B}.Debug|x86.Build.0 = Debug|Win32
+		{1E1E19A6-C076-4771-B5C2-5250FFC6771B}.Release|x64.ActiveCfg = Release|x64
+		{1E1E19A6-C076-4771-B5C2-5250FFC6771B}.Release|x64.Build.0 = Release|x64
+		{1E1E19A6-C076-4771-B5C2-5250FFC6771B}.Release|x86.ActiveCfg = Release|Win32
+		{1E1E19A6-C076-4771-B5C2-5250FFC6771B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

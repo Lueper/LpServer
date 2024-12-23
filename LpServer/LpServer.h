@@ -1,6 +1,7 @@
 #pragma once
 
 #pragma comment (lib, "LpNetCore.lib")
+#pragma comment (lib, "LpUtility.lib")
 
 #include <iostream>
 #include <string>
@@ -9,6 +10,7 @@
 #include "yaml-cpp/yaml.h"
 
 #include "LpNetCore.h"
+#include "LpUtility.h"
 
 using namespace boost;
 

@@ -3,7 +3,11 @@
 
 namespace lpnet {
 LpSession::LpSession() : m_socket(LpIOContext::Instance().GetIOContext()),
-							m_recvBuffer(MAX_SIZE), m_sendBuffer(MAX_SIZE) {
+							m_recvBuffer(65536), m_sendBuffer(65536) {
+}
+
+LpSession::LpSession(uint32_t _size) : m_socket(LpIOContext::Instance().GetIOContext()),
+										m_recvBuffer(_size), m_sendBuffer(_size) {
 }
 
 LpSession::~LpSession() {
@@ -23,8 +27,8 @@ void LpSession::Read() {
 	if (m_socket.is_open() == false)
 		return;
 
-    m_socket.async_read_some(asio::mutable_buffer(m_recvBuffer.GetBuffer(), 8196)
-                , std::bind(&LpSession::OnRead, this, std::placeholders::_1));
+    m_socket.async_read_some(asio::mutable_buffer(m_recvBuffer.GetBuffer(), m_recvBuffer.GetBufferMaxSize())
+                , std::bind(&LpSession::OnRead, this, std::placeholders::_1, std::placeholders::_2));
 				
 	std::cout << "[Info]#LpSession : Read." << "\n";
 }
@@ -49,8 +53,8 @@ void LpSession::Write() {
 	if (m_socket.is_open() == false)
 		return;
 	
-	m_socket.async_write_some(asio::mutable_buffer(m_sendBuffer.GetBuffer(), 8196)
-				, std::bind(&LpSession::OnWrite, this, std::placeholders::_1));
+	m_socket.async_write_some(asio::mutable_buffer(m_sendBuffer.GetBuffer(), m_sendBuffer.GetBufferMaxSize())
+				, std::bind(&LpSession::OnWrite, this, std::placeholders::_1), std::placeholders::_2);
 
 	std::cout << "[Info]#LpSession : Write." << "\n";
 }

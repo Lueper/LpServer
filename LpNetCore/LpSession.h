@@ -8,6 +8,7 @@ namespace lpnet {
 class LpSession {
 public:
 	LpSession();
+	LpSession(uint32_t _size);
 	~LpSession();
 
 	void Close();
@@ -22,7 +23,5 @@ private:
 
 	LpBuffer m_recvBuffer;
 	LpBuffer m_sendBuffer;
-
-	uint16_t MAX_SIZE = 8196;
 };
 }

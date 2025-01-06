@@ -23,6 +23,8 @@ int main() {
     // Config
     lpServer.LoadFile("config/LpServer.yaml");
 
+	lpServer.Init();
+
     try {
         lpServer.Start();
     }

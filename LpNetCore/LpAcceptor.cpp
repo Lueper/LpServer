@@ -29,7 +29,7 @@ void LpAcceptor::Listen(int32_t _backLog) {
 }
 
 void LpAcceptor::AsyncAccept() {
-	LpSession* session = new LpSession();
+	LpSession* session = new LpSession(GetIOBufferMaxSize());
 	
 	m_acceptor.async_accept(session->GetSocket()
 		, std::bind(&LpAcceptor::OnAccept, this, session, std::placeholders::_1));

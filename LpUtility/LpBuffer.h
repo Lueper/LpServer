@@ -5,7 +5,7 @@
 namespace lpnet {
 class LpBuffer {
 public:
-	LpBuffer(uint16_t _size);
+	LpBuffer(uint32_t _size);
 	~LpBuffer();
 
 	//LpBuffer(const LpBuffer&) = delete;
@@ -16,8 +16,8 @@ public:
 	char* GetBuffer();
 
 private:
-	const uint16_t	m_maxSize;
-	uint16_t		m_length;
+	const uint32_t	m_maxSize;
+	uint32_t		m_length;
 	int				m_offset;
 	char*			m_buffer;
 };

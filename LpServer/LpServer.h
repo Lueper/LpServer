@@ -25,6 +25,7 @@ public:
 
 	void LoadFile(std::string _filePath);
 
+	void Init();
 	void Start();
 	void Run();
 

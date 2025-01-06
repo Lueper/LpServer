@@ -37,6 +37,10 @@ void LpServer::LoadFile(std::string _filePath) {
     }
 }
 
+void LpServer::Init() {
+	m_acceptor->SetIOBufferMaxSize(m_ioBufferSize);
+}
+
 void LpServer::Start() {
     // 클라이언트 연결 대기
     m_acceptor->Listen();

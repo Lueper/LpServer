@@ -28,6 +28,8 @@ public:
 	void Init();
 	void Start();
 	void Run();
+	void Stop();
+	void Release();
 
 private:
 	uint32_t m_threadCount = 0;

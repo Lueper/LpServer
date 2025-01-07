@@ -63,3 +63,11 @@ void LpServer::Start() {
 void LpServer::Run() {
     lpnet::LpIOContext::Instance().Run();
 }
+
+void LpServer::Stop() {
+	lpnet::LpIOContext::Instance().Stop();
+}
+
+void LpServer::Release() {
+	delete m_acceptor;
+}

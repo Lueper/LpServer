@@ -1,30 +1,30 @@
 #pragma once
 
 #include "LpUtility.h"
+#include "LpSpinLock.h"
 
 namespace lpnet {
 class LpBuffer {
+	using Size = uint32_t;
 public:
-	LpBuffer(uint32_t _size);
+	LpBuffer(Size _size);
 	~LpBuffer();
 
-	//LpBuffer(const LpBuffer&) = delete;
-	//LpBuffer& operator=(const LpBuffer&) = delete;
-	//LpBuffer& operator=(const LpBuffer&&) = delete;
-
 	void Clear();
-	void Push(char* _data, uint32_t _size);
-	void Pop(char* _data, uint32_t _size);
+	void Push(char* _data, Size _size);
+	void Pop(char* _data, Size _size);
 
 	char* GetBuffer();
+	uint32_t GetAvailableSize();
 	uint32_t GetBufferMaxSize();
 
 private:
 	LpSpinLock m_spinLock;
 
-	const uint32_t	m_maxSize;
-	uint32_t		m_useSize;
-	uint32_t		m_offset;
-	char*			m_buffer;
+	const Size	m_maxSize;
+	Size		m_useSize;
+	Size		m_lCur;
+	Size		m_rCur;
+	char*		m_buffer;
 };
 }

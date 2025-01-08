@@ -33,6 +33,12 @@
     <ClInclude Include="LpSession.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="LpPacketHandler.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LpPacket.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LpNetCore.cpp">
@@ -48,6 +54,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="LpSession.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LpPacketHandler.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "LpNetCore.h"
+#include "LpPacket.h"
 
 namespace lpnet {
 class LpPacketHandler {
@@ -11,6 +12,11 @@ public:
 		static LpPacketHandler instance;
 		return instance;
 	}
+
+	void Serialize(const char* _data);
+
+	template <typename T>
+	T* Deserialize(const char* _data);
 
 	void Process(const char* _data, uint32_t _size);
 

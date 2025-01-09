@@ -4,3 +4,5 @@
 
 #include "LpBuffer.h"
 #include "LpSpinLock.h"
+#include "LpEncryptor.h"
+#include "LpDecryptor.h"

@@ -16,7 +16,7 @@ public:
 	void Serialize(const char* _data);
 
 	template <typename T>
-	T* Deserialize(const char* _data);
+	T* Deserialize(const char* _data, uint32_t _offset = 0);
 
 	void Process(const char* _data, uint32_t _size);
 

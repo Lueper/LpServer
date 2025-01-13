@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#pragma pack(push, 1)
 // 21 bytes
 struct PacketHeader {
 	uint8_t type;
@@ -20,3 +21,4 @@ struct Packet {
 	char		 payload[128];
 	PacketTail	 tail;
 };
+#pragma pack(pop)

@@ -15,16 +15,13 @@ void LpPacketHandler::Serialize(const char* _data) {
 }
 
 template <typename T>
-T* LpPacketHandler::Deserialize(const char* _data) {
+T* LpPacketHandler::Deserialize(const char* _data, uint32_t _offset) {
 	if (_data == nullptr) {
 		return nullptr;
 	}
 
-	uint16_t offset = 0;
 	T* data = (T*)malloc(sizeof(T));
-	memset(data, 0, sizeof(T));
-
-	memcpy_s(data, sizeof(T), _data + offset, sizeof(T));
+	memcpy_s(data, sizeof(T), _data + _offset, sizeof(T));
 
 	return data;
 }
@@ -53,14 +50,19 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 
 	switch (packetHeader->type) {
 		case 100:
-			// ¿œ¥‹ 100 ∏∏ Ω¬¿Œ
+			// 100 Ω¬¿Œ
+			break;
+		case 101:
+			// ±Ë¡ˆ«ı
+			break;
+		case 102:
+			// ¿Øøµ¡ÿ
+			break;
+		case 103:
+			// ¡§¿∫º∫
 			break;
 		default:
 			return;
-	}
-
-	if (_size != sizeof(Packet)) {
-		return;
 	}
 
 	char* packetPayload = reinterpret_cast<char*>(Deserialize<char[128]>(_data + sizeof(PacketHeader)));
@@ -83,16 +85,18 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 			return;
 	}
 
-	//LpDecryptor.Decode(checkSum)
+	//LpDecryptor.Decode(checkSum);
 
 	std::cout << "[Info]#LpPacketHandler : "
 		<< "[type:" << (uint8_t)packetHeader->type << "]"
+		<< "[checkSum:" << (uint8_t)packetHeader->checkSum << "]"
 		<< "[size:" << (uint32_t)packetHeader->size << "]"
 		<< "[payload:" << packetPayload << "]"
+		<< "[tail:" << (uint8_t)packetTail->value << "]"
 		<< "\n";
 
-	delete packetHeader;
-	delete packetPayload;
-	delete packetTail;
+	free(packetHeader);
+	free(packetPayload);
+	free(packetTail);
 }
 }

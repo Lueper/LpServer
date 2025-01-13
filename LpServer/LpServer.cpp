@@ -2,15 +2,15 @@
 
 #include "LpServer.h"
 
-using namespace boost;
-
 LpServer::LpServer() {
     m_acceptor = new lpnet::LpAcceptor();
+	m_threadVector.clear();
 }
 
 LpServer::LpServer(const std::string _ip, uint16_t _port) {
     m_acceptor = new lpnet::LpAcceptor();
     m_acceptor->Bind(_ip, _port);
+	m_threadVector.clear();
 }
 
 LpServer::~LpServer() {
@@ -37,6 +37,19 @@ void LpServer::LoadFile(std::string _filePath) {
     }
 }
 
+bool LpServer::ProcessCommand() {
+	std::string command;
+	getline(std::cin, command);
+
+	if (command.find("exit") != std::string::npos) {
+		return true;
+	}
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+	return false;
+}
+
 void LpServer::Init() {
 	m_acceptor->SetIOBufferMaxSize(m_ioBufferSize);
 }
@@ -48,24 +61,34 @@ void LpServer::Start() {
     // 비동기 승인 시작
     m_acceptor->AsyncAccept();
 
+	int iWorkCnt = std::thread::hardware_concurrency() / 2;
+
     // 이벤트가 없을 때까지 대기
     for (uint32_t i = 0; i < m_threadCount; i++) {
-        m_ThreadVector.emplace_back(std::thread {
-                std::bind(&LpServer::Run, this)
-        });
-    }
-
-    for (auto& thread : m_ThreadVector) {
-        thread.join();
+		std::thread* thread = new std::thread([this] {
+			Run();
+		});
+		m_threadVector.push_back(thread);
     }
 }
 
 void LpServer::Run() {
-    lpnet::LpIOContext::Instance().Run();
+	m_acceptor->Run();
 }
 
 void LpServer::Stop() {
-	lpnet::LpIOContext::Instance().Stop();
+	m_acceptor->Stop();
+
+	for (auto& thread : m_threadVector)
+	{
+		if (thread->joinable())
+			thread->join();
+	}
+	for (auto& thread : m_threadVector)
+	{
+		delete thread;
+	}
+	m_threadVector.clear();
 }
 
 void LpServer::Release() {

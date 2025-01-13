@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <thread>
 
 #include "yaml-cpp/yaml.h"
 
@@ -24,6 +25,7 @@ public:
 	void SetIOBufferSize(uint32_t _ioBufferSize) { m_ioBufferSize = _ioBufferSize; }
 
 	void LoadFile(std::string _filePath);
+	bool ProcessCommand();
 
 	void Init();
 	void Start();
@@ -36,5 +38,5 @@ private:
 	uint32_t m_ioBufferSize = 0;
 
 	lpnet::LpAcceptor* m_acceptor = nullptr;
-	std::vector<std::thread> m_ThreadVector;
+	std::vector<std::thread*> m_threadVector;
 };

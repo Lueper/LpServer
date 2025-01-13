@@ -18,15 +18,22 @@ int main() {
     _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
 #endif
 
-    LpServer lpServer("127.0.0.1", 5000);
+    LpServer* lpServer = new LpServer("192.168.20.241", 5000);
 
     // Config
-    lpServer.LoadFile("config/LpServer.yaml");
+    lpServer->LoadFile("config/LpServer.yaml");
 
-	lpServer.Init();
+	lpServer->Init();
 
     try {
-        lpServer.Start();
+        lpServer->Start();
+		while (true) {
+			if (lpServer->ProcessCommand() == true) {
+				lpServer->Stop();
+				lpServer->Release();
+				break;
+			}
+		}
     }
     catch (std::exception& e)
     {

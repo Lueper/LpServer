@@ -4,7 +4,7 @@
 
 namespace lpnet {
 	using namespace boost;
-class LpAcceptor {
+class LpAcceptor : public LpIOContext {
 public:
 	LpAcceptor();
 	~LpAcceptor();
@@ -19,7 +19,7 @@ public:
 	uint32_t GetIOBufferMaxSize() { return BUFFER_MAX_SIZE;	};
 
 private:
-	asio::ip::tcp::acceptor m_acceptor;
+	asio::ip::tcp::acceptor* m_acceptor;
 
 	uint32_t BUFFER_MAX_SIZE = 65536;
 };

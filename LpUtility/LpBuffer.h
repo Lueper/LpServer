@@ -5,14 +5,15 @@
 
 namespace lpnet {
 class LpBuffer {
-	using Size = uint32_t;
+	//using Size = uint32_t;
 public:
-	LpBuffer(Size _size);
+	/*LpBuffer();*/
+	LpBuffer(uint32_t _size);
 	~LpBuffer();
 
 	void Clear();
-	void Push(char* _data, Size _size);
-	void Pop(char* _data, Size _size);
+	void Push(char* _data, uint32_t _size);
+	void Pop(char* _data, uint32_t _size);
 
 	char* GetBuffer();
 	uint32_t GetAvailableSize();
@@ -21,10 +22,10 @@ public:
 private:
 	LpSpinLock m_spinLock;
 
-	const Size	m_maxSize;
-	Size		m_useSize;
-	Size		m_lCur;
-	Size		m_rCur;
-	char*		m_buffer;
+	const uint32_t	m_maxSize;
+	uint32_t		m_useSize;
+	uint32_t		m_lCur;
+	uint32_t		m_rCur;
+	char*			m_buffer;
 };
 }

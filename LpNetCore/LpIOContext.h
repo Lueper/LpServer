@@ -6,21 +6,16 @@ namespace lpnet {
 	using namespace boost;
 class LpIOContext {
 public:
-	static LpIOContext& Instance() {
-		static LpIOContext instance;
-		return instance;
-	}
-
-	asio::io_context& GetIOContext();
+	LpIOContext();
+	~LpIOContext();
 
 	void Run();
 	void Stop();
 	void Restart();
 
-private:
-	LpIOContext();
-	~LpIOContext();
+	asio::io_context* GetIOContext();
 
-	asio::io_context m_ioContext;
+private:
+	asio::io_context* m_ioContext;
 };
 }

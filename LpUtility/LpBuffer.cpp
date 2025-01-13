@@ -2,7 +2,12 @@
 #include "LpBuffer.h"
 
 namespace lpnet {
-LpBuffer::LpBuffer(Size _size) : m_maxSize(_size), m_useSize(0), m_lCur(0), m_rCur(0), m_buffer(nullptr), m_spinLock() {
+//LpBuffer::LpBuffer() : m_maxSize(65536), m_useSize(0), m_lCur(0), m_rCur(0), m_buffer(nullptr), m_spinLock() {
+//	m_buffer = new char[m_maxSize];
+//	memset(m_buffer, 0, m_maxSize);
+//}
+
+LpBuffer::LpBuffer(uint32_t _size) : m_maxSize(_size), m_useSize(0), m_lCur(0), m_rCur(0), m_buffer(nullptr), m_spinLock() {
 	m_buffer = new char[m_maxSize];
 	memset(m_buffer, 0, m_maxSize);
 }
@@ -22,7 +27,7 @@ void LpBuffer::Clear()
 	m_spinLock.UnLock();
 }
 
-void LpBuffer::Push(char* _data, Size _size) {
+void LpBuffer::Push(char* _data, uint32_t _size) {
 	m_spinLock.Lock();
 
 	if (_data == nullptr || _size == 0 || _size > m_maxSize) {
@@ -36,8 +41,8 @@ void LpBuffer::Push(char* _data, Size _size) {
 		m_rCur += _size;
 	}
 	else {
-		Size frontSize = m_maxSize - m_rCur;
-		Size backSize = _size - frontSize;
+		uint32_t frontSize = m_maxSize - m_rCur;
+		uint32_t backSize = _size - frontSize;
 
 		memcpy_s(m_buffer + m_rCur, frontSize, _data, frontSize);
 		memcpy_s(m_buffer, backSize, _data + frontSize, backSize);
@@ -50,7 +55,7 @@ void LpBuffer::Push(char* _data, Size _size) {
 	m_spinLock.UnLock();
 }
 
-void LpBuffer::Pop(char* _data, Size _size) {
+void LpBuffer::Pop(char* _data, uint32_t _size) {
 	m_spinLock.Lock();
 
 	if (_data == nullptr || _size == 0 || _size > m_maxSize || _size > m_useSize) {
@@ -64,8 +69,8 @@ void LpBuffer::Pop(char* _data, Size _size) {
 		m_lCur += _size;
 	}
 	else {
-		Size frontSize = m_maxSize - m_rCur;
-		Size backSize = _size - frontSize;
+		uint32_t frontSize = m_maxSize - m_rCur;
+		uint32_t backSize = _size - frontSize;
 
 		memcpy_s(_data, frontSize, m_buffer + m_lCur, frontSize);
 		memcpy_s(_data + frontSize, backSize, m_buffer, backSize);

@@ -3,6 +3,8 @@
 #pragma comment (lib, "LpUtility.lib")
 
 #include <iostream>
+#include <mutex>
+#include <thread>
 
 #include "boost/asio.hpp"
 #include "boost/bind.hpp"

@@ -71,11 +71,13 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 	Read();
 }
 
-void LpSession::Write() {
+void LpSession::Write(uint32_t _size) {
 	if (m_socket->is_open() == false)
 		return;
+
+	m_writeBuffer->Pop(m_sendBuffer, _size);
 	
-	m_socket->async_write_some(asio::mutable_buffer(m_sendBuffer, m_ioBufferSize)
+	m_socket->async_write_some(asio::mutable_buffer(m_sendBuffer, _size)
 				, std::bind(&LpSession::OnWrite, this, std::placeholders::_1, std::placeholders::_2));
 
 	std::cout << "[Info]#LpSession : Write." << "\n";
@@ -87,13 +89,6 @@ void LpSession::OnWrite(const system::error_code& _error, uint32_t _size) {
 	
 	    return;
 	}
-	
-	m_writeBuffer->Push(m_sendBuffer, _size);
-
-	// TODO: 다른 곳에서 처리
-	char* data = nullptr;
-	m_writeBuffer->Pop(data, _size);
-	LpPacketHandler::Instance().Process(data, _size);
 }
 
 void LpSession::Init() {
@@ -108,8 +103,12 @@ void LpSession::Connect(const std::string _ip, uint16_t _port) {
 	m_socket->connect(endpoint);
 }
 
-void LpSession::Send(void* _buffer, uint32_t _size, uint32_t& sendSize) {
+void LpSession::Send(char* _buffer, uint32_t _size) {
+	
+	// 넣고
+	m_writeBuffer->Push(_buffer, _size);
 
+	Write(_size);
 }
 
 asio::ip::tcp::socket* LpSession::GetSocket() {

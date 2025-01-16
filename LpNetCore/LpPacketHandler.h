@@ -13,12 +13,13 @@ public:
 		return instance;
 	}
 
-	void Serialize(const char* _data);
-
+	template <typename T>
+	char* Serialize(const T* _data, uint32_t _offset = 0);
 	template <typename T>
 	T* Deserialize(const char* _data, uint32_t _offset = 0);
 
 	void Process(const char* _data, uint32_t _size);
+	void ProcessSend(Packet* _packet, uint32_t _size, char** _data);
 
 private:
 	LpPacketHandler();

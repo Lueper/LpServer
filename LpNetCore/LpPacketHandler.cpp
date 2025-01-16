@@ -10,8 +10,16 @@ LpPacketHandler::~LpPacketHandler() {
 
 }
 
-void LpPacketHandler::Serialize(const char* _data) {
+template <typename T>
+char* LpPacketHandler::Serialize(const T* _data, uint32_t _offset) {
+	if (_data == nullptr) {
+		return nullptr;
+	}
 
+	char* data = new char[sizeof(T)];
+	memcpy_s(data, sizeof(T), _data + _offset, sizeof(T));
+
+	return data;
 }
 
 template <typename T>
@@ -32,19 +40,12 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 	}
 
 	PacketHeader* packetHeader = Deserialize<PacketHeader>(_data);
-
 	if (packetHeader == nullptr) {
 		return;
 	}
 
-	if (packetHeader->size < _size) {
-		return;
-	}
-
-	if (packetHeader->size > _size) {
-		// '헤더보다 작은 경우' 추가
-		// TODO: data를 더 받아와야 하는 경우
-
+	if (packetHeader->size < _size || packetHeader->size > _size) {
+		// TODO: _data를 다시 받아야 하는 경우
 		return;
 	}
 
@@ -66,13 +67,11 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 	}
 
 	char* packetPayload = reinterpret_cast<char*>(Deserialize<char[128]>(_data + sizeof(PacketHeader)));
-
 	if (packetPayload == nullptr) {
 		return;
 	}
 
 	PacketTail* packetTail = Deserialize<PacketTail>(_data + sizeof(PacketHeader) + sizeof(char[128]));
-
 	if (packetTail == nullptr) {
 		return;
 	}
@@ -89,7 +88,7 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 
 	std::cout << "[Info]#LpPacketHandler : "
 		<< "[type:" << (uint8_t)packetHeader->type << "]"
-		<< "[checkSum:" << (uint8_t)packetHeader->checkSum << "]"
+		<< "[checkSum:" << packetHeader->checkSum << "]"
 		<< "[size:" << (uint32_t)packetHeader->size << "]"
 		<< "[payload:" << packetPayload << "]"
 		<< "[tail:" << (uint8_t)packetTail->value << "]"
@@ -98,5 +97,9 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 	free(packetHeader);
 	free(packetPayload);
 	free(packetTail);
+}
+
+void LpPacketHandler::ProcessSend(Packet* _packet, uint32_t _size, char** _data) {
+	*_data = Serialize<Packet>(_packet);
 }
 }

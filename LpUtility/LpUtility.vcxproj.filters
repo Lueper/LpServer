@@ -30,6 +30,12 @@
     <ClInclude Include="LpSpinLock.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="LpEncryptor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LpDecryptor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LpUtility.cpp">
@@ -42,6 +48,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="LpSpinLock.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LpEncryptor.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LpDecryptor.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

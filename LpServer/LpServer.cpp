@@ -42,12 +42,12 @@ bool LpServer::ProcessCommand() {
 	getline(std::cin, command);
 
 	if (command.find("exit") != std::string::npos) {
-		return true;
+		return false;
 	}
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-	return false;
+	return true;
 }
 
 void LpServer::Init() {

@@ -69,7 +69,7 @@ void LpBuffer::Pop(char* _data, uint32_t _size) {
 		m_lCur += _size;
 	}
 	else {
-		uint32_t frontSize = m_maxSize - m_rCur;
+		uint32_t frontSize = m_maxSize - m_lCur;
 		uint32_t backSize = _size - frontSize;
 
 		memcpy_s(_data, frontSize, m_buffer + m_lCur, frontSize);

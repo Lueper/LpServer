@@ -6,3 +6,4 @@
 #include "LpSpinLock.h"
 #include "LpEncryptor.h"
 #include "LpDecryptor.h"
+#include "LpLogger.h"

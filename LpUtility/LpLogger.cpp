@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "LpLogger.h"
 
+namespace lpnet {
 void LpLogger::LOG(ELogType _logType, const wchar_t* msg) {
 	std::wstring ws(msg);
 	LOG(_logType, std::string(ws.begin(), ws.end()));
@@ -55,4 +56,5 @@ void LpLogger::LOG(ELogType _logType, const std::string& msg) {
 	os << msg << std::endl;
 
 	std::cout << os.str();
+}
 }

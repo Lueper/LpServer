@@ -37,7 +37,7 @@ void LpSession::Close() {
 	if (m_socket->is_open()) {
 		m_socket->close();
 
-		std::cout << "[Info]#LpSession : Close." << "\n";
+		LpLogger::LOG_INFO("#LpSession Close");
 	}
 }
 
@@ -47,13 +47,13 @@ void LpSession::Read() {
 
     m_socket->async_read_some(asio::mutable_buffer(m_recvBuffer, m_ioBufferSize)
                 , std::bind(&LpSession::OnRead, this, std::placeholders::_1, std::placeholders::_2));
-				
-	std::cout << "[Info]#LpSession : Read." << "\n";
 }
 
 void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 	if (_error.value() != 0) {
-		std::cout << "[Error]#LpSession : Accpet Fail - [value: " << _error.value() << "][msg: " << _error.message() << "]" << "\n";
+		std::ostringstream errorMsg;
+		errorMsg << "#LpSession Read Fail - [value: " << _error.value() << "][msg: " << _error.message() << "]";
+		LpLogger::LOG_ERROR(errorMsg.str());
 
 		Close();
 	
@@ -79,13 +79,13 @@ void LpSession::Write(uint32_t _size) {
 	
 	m_socket->async_write_some(asio::mutable_buffer(m_sendBuffer, _size)
 				, std::bind(&LpSession::OnWrite, this, std::placeholders::_1, std::placeholders::_2));
-
-	std::cout << "[Info]#LpSession : Write." << "\n";
 }
 
 void LpSession::OnWrite(const system::error_code& _error, uint32_t _size) {
 	if (_error.value() != 0) {
-	    std::cout << "[Error]#LpSession : Accpet Fail - [value: " << _error.value() << "][msg: " << _error.message() << "]" << "\n";
+		std::ostringstream errorMsg;
+		errorMsg << "#LpSession Write Fail - [value: " << _error.value() << "][msg: " << _error.message() << "]";
+		LpLogger::LOG_ERROR(errorMsg.str());
 	
 	    return;
 	}

@@ -19,13 +19,13 @@ void LpAcceptor::Bind(const std::string _ip, uint16_t _port) {
 	m_acceptor->set_option(asio::ip::tcp::acceptor::reuse_address(true));
 	m_acceptor->bind(endpoint, error);
 
-	std::cout << "[Info]#LpAcceptor : Bind Success.\n";
+	LpLogger::LOG_INFO("#LpAcceptor Bind Success");
 }
 
 void LpAcceptor::Listen(int32_t _backLog) {
 	m_acceptor->listen(_backLog);
 
-	std::cout << "[Info]#LpAcceptor : Listen.\n";
+	LpLogger::LOG_INFO("#LpAcceptor Listen");
 }
 
 void LpAcceptor::AsyncAccept() {
@@ -34,16 +34,16 @@ void LpAcceptor::AsyncAccept() {
 	m_acceptor->async_accept(*session->GetSocket()
 		, std::bind(&LpAcceptor::OnAccept, this, session, std::placeholders::_1));
 
-	std::cout << "[Info]#LpAcceptor : AsyncAccept.\n";
+	LpLogger::LOG_INFO("#LpAcceptor AsyncAccept");
 }
 
 void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error) {
 	if (_error) {
-		std::cout << "[Error]#LpAcceptor : OnAccept Fail.\n";
+		LpLogger::LOG_ERROR("#LpAcceptor OnAccept Fail");
 		delete _session;
 	}
 	else {
-		std::cout << "[Info]#LpAcceptor : OnAccept.\n";
+		LpLogger::LOG_INFO("#LpAcceptor OnAccept");
 
 		_session->Read();
     }

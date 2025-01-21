@@ -27,7 +27,7 @@ void LpServer::LoadFile(std::string _filePath) {
         SetThreadCount(config["Server"]["ThreadCount"].as<uint32_t>());
         SetIOBufferSize(config["Server"]["IOBufferSize"].as<uint32_t>());
 
-        std::cout << "[Info]#YAML : Load Config file is Success" << "\n";
+		lpnet::LpLogger::LOG_INFO("#YAML Load Config file is Success");
     }
     catch (const YAML::BadFile& e) {
         std::cerr << e.msg << std::endl;

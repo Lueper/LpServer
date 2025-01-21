@@ -26,6 +26,7 @@ const std::string LOG_DESC[]{
 	"FATAL"
 };
 
+namespace lpnet {
 #define LOG_DEBUG(msg)	LOG(ELogType::debug, msg)
 #define LOG_INFO(msg)	LOG(ELogType::info, msg)
 #define LOG_WARN(msg)	LOG(ELogType::warn, msg)
@@ -37,4 +38,4 @@ public:
 	static void LOG(ELogType _logType, const wchar_t* msg);
 	static void LOG(ELogType _logType, const std::string& msg);
 };
-
+}

@@ -172,9 +172,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="LpClient.cpp" />
+    <ClCompile Include="LpClientConsole.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LpClient.h" />
+    <ClInclude Include="LpClientConsole.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

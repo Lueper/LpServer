@@ -37,5 +37,9 @@ class LpLogger {
 public:
 	static void LOG(ELogType _logType, const wchar_t* msg);
 	static void LOG(ELogType _logType, const std::string& msg);
+
+private:
+	static void setColor(ELogType _logType);
+	static void resetColor();
 };
 }

@@ -11,10 +11,11 @@ void LpLogger::LOG(ELogType _logType, const std::string& msg) {
 	std::ostringstream os;
 	struct _timeb	  _time;
 	tm				   t;
-	std::string output;
 
 	_ftime64_s(&_time);
 	localtime_s(&t, &(_time.time));
+	
+	setColor(_logType);
 	std::string logLevel = LOG_DESC[(int)_logType];
 
 	// [yyyy-mm-dd hh:mm:ss.ms]
@@ -46,7 +47,7 @@ void LpLogger::LOG(ELogType _logType, const std::string& msg) {
 
 	// [LogType]
 	os << std::setfill((' '))
-		<< std::setw(5)
+		<< std::setw(6)
 		<< std::left
 		<< logLevel << ("[");
 
@@ -56,5 +57,32 @@ void LpLogger::LOG(ELogType _logType, const std::string& msg) {
 	os << msg << std::endl;
 
 	std::cout << os.str();
+
+	resetColor();
+}
+
+void LpLogger::setColor(ELogType _logType) {
+	switch (_logType) {
+	case ELogType::debug:	// cyan
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+		break;
+	case ELogType::info:	// white
+		break;
+	case ELogType::warn:	// yellow
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+		break;
+	case ELogType::error:	// red
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
+		break;
+	case ELogType::fatal:	// background red
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY | BACKGROUND_RED);
+		break;
+	default:
+		break;
+	}
+}
+
+void LpLogger::resetColor() {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 }
 }

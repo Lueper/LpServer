@@ -45,14 +45,15 @@ void LpLogger::LOG(ELogType _logType, const std::string& msg) {
 		<< std::setw(3)
 		<< _time.millitm << (" ");
 
-	// [LogType]
+	// LogType
 	os << std::setfill((' '))
 		<< std::setw(6)
 		<< std::left
 		<< logLevel << ("[");
 
-	// 스레드 번호
-	os << "" << ("] ");
+	// ThreadID
+	std::thread::id threadID = std::this_thread::get_id();
+	os << threadID << ("] ");
 
 	os << msg << std::endl;
 

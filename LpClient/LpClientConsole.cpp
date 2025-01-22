@@ -10,17 +10,6 @@ LpClientConsole::~LpClientConsole() {
 
 }
 
-void LpClientConsole::ClientMain() {
-	LpClient* lpClient = new LpClient();
-	{
-		m_ClientVector.push_back(lpClient);
-	}
-	
-	lpClient->Init(m_threadCount, m_sessionCount);
-	
-	lpClient->Run();
-}
-
 void LpClientConsole::InitCommand() {
 	std::string command;
 
@@ -75,5 +64,39 @@ bool LpClientConsole::ProcessCommand() {
 	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 	return true;
+}
+
+void LpClientConsole::LoadFile(std::string _filePath) {
+	try {
+#ifdef _DEBUG
+		YAML::Node config = YAML::LoadFile(_filePath)["Debug"];
+#else
+		YAML::Node config = YAML::LoadFile(_filePath)["Release"];
+#endif
+		SetThreadCount(config["Server"]["ThreadCount"].as<uint32_t>());
+		SetIOBufferSize(config["Server"]["IOBufferSize"].as<uint32_t>());
+
+		YeongjunServer = make_pair(config["Yeongjun"]["IP"].as<std::string>(), config["Yeongjun"]["Port"].as<uint16_t>());
+		EunseongServer = make_pair(config["Eunseong"]["IP"].as<std::string>(), config["Eunseong"]["Port"].as<uint16_t>());
+
+		lpnet::LpLogger::LOG_INFO("#YAML Load Config file is Success");
+	}
+	catch (const YAML::BadFile& e) {
+		std::cerr << e.msg << std::endl;
+	}
+	catch (const YAML::ParserException& e) {
+		std::cerr << e.msg << std::endl;
+	}
+}
+
+void LpClientConsole::ClientMain() {
+	LpClient* lpClient = new LpClient();
+	{
+		m_ClientVector.push_back(lpClient);
+	}
+
+	lpClient->Init(m_threadCount, m_sessionCount);
+
+	lpClient->Run();
 }
 }

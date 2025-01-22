@@ -5,6 +5,8 @@
 int main() {
 	lpnet::LpClientConsole console;
 
+	console.LoadFile("config/LpConfig.yaml");
+
 	console.InitCommand();
 
 	try {

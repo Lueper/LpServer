@@ -21,7 +21,7 @@ int main() {
     LpServer* lpServer = new LpServer("192.168.20.241", 7777);
 
     // Config
-    lpServer->LoadFile("config/LpServer.yaml");
+    lpServer->LoadFile("config/LpConfig.yaml");
 
 	lpServer->Init();
 

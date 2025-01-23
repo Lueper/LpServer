@@ -51,7 +51,7 @@ void LpClient::OnConnect(lpnet::LpSession* _session, const system::error_code& _
 
 void LpClient::Send(Packet* _packet, uint32_t _size) {
 	char* data = nullptr;
-	lpnet::LpPacketHandler::Instance().ProcessSend(_packet, _size, &data);
+	lpnet::LpPacketHandler::Instance()->ProcessSend(_packet, _size, &data);
 	m_session->Send(data, _size);
 }
 

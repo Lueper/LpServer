@@ -2,16 +2,15 @@
 
 #include <iostream>
 
+#include "LpSingleton.h"
 #include "LpNetCore.h"
 #include "LpPacket.h"
 
 namespace lpnet {
-class LpPacketHandler {
+class LpPacketHandler : public LpSingleton<LpPacketHandler> {
 public:
-	static LpPacketHandler& Instance() {
-		static LpPacketHandler instance;
-		return instance;
-	}
+	LpPacketHandler();
+	~LpPacketHandler();
 
 	template <typename T>
 	char* Serialize(const T* _data, uint32_t _offset = 0);
@@ -22,8 +21,5 @@ public:
 	void ProcessSend(Packet* _packet, uint32_t _size, char** _data);
 
 	int m_sendCount;
-private:
-	LpPacketHandler();
-	~LpPacketHandler();
 };
 }

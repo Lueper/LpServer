@@ -65,7 +65,7 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 	// TODO: 다른 곳에서 처리
 	char* data = new char[_size];
 	m_readBuffer->Pop(data, _size);
-	LpPacketHandler::Instance().Process(data, _size);
+	LpPacketHandler::Instance()->Process(data, _size);
 	delete[] data;
 
 	Read();

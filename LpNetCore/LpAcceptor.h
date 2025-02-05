@@ -21,6 +21,8 @@ public:
 private:
 	asio::ip::tcp::acceptor* m_acceptor;
 
+	std::atomic<bool> m_running;
+
 	uint32_t BUFFER_MAX_SIZE = 65536;
 };
 }

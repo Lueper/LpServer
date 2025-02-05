@@ -92,7 +92,7 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 
 	//LpDecryptor.Decode(checkSum);
 
-	m_sendCount++;
+	m_sendCount.fetch_add(1);
 
 	std::ostringstream msg;
 	msg << "#LpPacketHandler Read : "
@@ -112,17 +112,5 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 
 void LpPacketHandler::ProcessSend(Packet* _packet, uint32_t _size, char** _data) {
 	*_data = Serialize<Packet>(_packet);
-
-	m_sendCount++;
-	std::ostringstream msg;
-	msg << "#LpPacketHandler Send : "
-		<< "[type:" << (uint8_t)_packet->header.type << "]"
-		<< "[checkSum:" << _packet->header.checkSum << "]"
-		<< "[size:" << (uint32_t)_packet->header.size << "]"
-		<< "[payload:" << _packet->payload << "]"
-		<< "[tail:" << (uint8_t)_packet->tail.value << "]"
-		<< " count : " << m_sendCount;
-
-	LpLogger::LOG_INFO(msg.str());
 }
 }

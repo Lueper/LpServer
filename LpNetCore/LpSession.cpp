@@ -19,6 +19,8 @@ LpSession::LpSession(asio::io_context* _ioContext, uint32_t _size) : m_ioBufferS
 	m_socket = new asio::ip::tcp::socket(*_ioContext);
 	m_recvBuffer = new char[m_ioBufferSize];
 	m_sendBuffer = new char[m_ioBufferSize];
+	memset(m_recvBuffer, 0, m_ioBufferSize);
+	memset(m_sendBuffer, 0, m_ioBufferSize);
 	m_readBuffer = new LpBuffer(m_ioBufferSize);
 	m_writeBuffer = new LpBuffer(m_ioBufferSize);
 }

@@ -20,6 +20,6 @@ public:
 	void Process(const char* _data, uint32_t _size);
 	void ProcessSend(Packet* _packet, uint32_t _size, char** _data);
 
-	int m_sendCount;
+	std::atomic<int> m_sendCount;
 };
 }

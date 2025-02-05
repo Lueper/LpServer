@@ -4,6 +4,7 @@
 namespace lpnet {
 LpAcceptor::LpAcceptor() {
 	m_acceptor = new asio::ip::tcp::acceptor(*LpIOContext::GetIOContext());
+	m_running = false;
 }
 
 LpAcceptor::~LpAcceptor() {
@@ -29,12 +30,19 @@ void LpAcceptor::Listen(int32_t _backLog) {
 }
 
 void LpAcceptor::AsyncAccept() {
-	LpSession* session = new LpSession(LpIOContext::GetIOContext(), GetIOBufferMaxSize());
-	
-	m_acceptor->async_accept(*session->GetSocket()
-		, std::bind(&LpAcceptor::OnAccept, this, session, std::placeholders::_1));
+	LpSession* session = nullptr;
 
-	LpLogger::LOG_INFO("#LpAcceptor AsyncAccept");
+	try {
+		session = new LpSession(LpIOContext::GetIOContext(), GetIOBufferMaxSize());
+
+		m_acceptor->async_accept(*session->GetSocket()
+			, std::bind(&LpAcceptor::OnAccept, this, session, std::placeholders::_1));
+
+		LpLogger::LOG_INFO("#LpAcceptor AsyncAccept");
+	}
+	catch (...) {
+		delete session;
+	}
 }
 
 void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error) {

@@ -7,9 +7,9 @@ int main() {
 
 	console.LoadFile("config/LpConfig.yaml");
 
-	console.InitCommand();
-
 	try {
+		console.Run();
+
 		while (true) {
 			if (console.ProcessCommand() == false) {
 

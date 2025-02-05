@@ -10,48 +10,30 @@ LpClientConsole::~LpClientConsole() {
 
 }
 
-void LpClientConsole::InitCommand() {
-	std::string command;
-
-	std::cout << "thread count [1]: ";
-	getline(std::cin, command);
-	m_threadCount = std::stoul(command);
-
-	std::cout << "send count [10]: ";
-	getline(std::cin, command);
-	m_sendCount = std::stoul(command);
-
-	//std::cout << "socket count [1]: ";
-	//getline(std::cin, command);
-	/*m_sessionCount = std::stoul(command);*/
-
-	std::cout << "command [start]: ";
-}
-
 bool LpClientConsole::ProcessCommand() {
 	std::string command;
 	getline(std::cin, command);
 
-	if (command.find("start") != std::string::npos) {
-		for (int i = 0; i < m_threadCount; i++) {
-			std::thread* thread = new std::thread([this] {
-				ClientMain();
-			});
+	//if (command.find("start") != std::string::npos) {
+	//	for (uint32_t i = 0; i < m_threadCount; i++) {
+	//		std::thread* thread = new std::thread([this] {
+	//			ClientMain();
+	//		});
 
-			m_threadVector.push_back(thread);
-		}
+	//		m_threadVector.push_back(thread);
+	//	}
 
-		//Run();
-	}
+	//	//Run();
+	//}
 
 	if (command.find("close") != std::string::npos) {
 		//Close();
 	}
 
 	if (command.find("send") != std::string::npos) {
-		for (int i = 0; i < m_sendCount; i++) {
-			for (LpClient* client : m_ClientVector) {
-				client->TestSend();
+		for (int i = 0; i < 100; i++) {
+			for (auto& clientThread : m_clientThreadVector) {
+				clientThread.second->TestSend();
 				//std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 		}
@@ -69,15 +51,24 @@ bool LpClientConsole::ProcessCommand() {
 void LpClientConsole::LoadFile(std::string _filePath) {
 	try {
 #ifdef _DEBUG
-		YAML::Node config = YAML::LoadFile(_filePath)["Debug"];
+		YAML::Node config = YAML::LoadFile(_filePath)["Client"]["Debug"];
 #else
-		YAML::Node config = YAML::LoadFile(_filePath)["Release"];
+		YAML::Node config = YAML::LoadFile(_filePath)["Client"]["Release"];
 #endif
-		SetThreadCount(config["Server"]["ThreadCount"].as<uint32_t>());
-		SetIOBufferSize(config["Server"]["IOBufferSize"].as<uint32_t>());
+		SetIOBufferSize(config["IOBufferSize"].as<uint32_t>());
+		SetThreadCount(config["ThreadCount"].as<uint32_t>());
+		SetSessionCount(config["SessionCount"].as<uint32_t>());
+		
+		SetServerCount(config["ServerCount"].as<int>());
+		SetSendIndex(config["SendIndex"].as<int>());
+		for (int i = 0; i < m_serverCount; i++) {
+			std::string ip = config["ServerList"][i]["IP"].as<std::string>();
+			uint16_t port = config["ServerList"][i]["Port"].as<uint16_t>();
 
-		YeongjunServer = make_pair(config["Yeongjun"]["IP"].as<std::string>(), config["Yeongjun"]["Port"].as<uint16_t>());
-		EunseongServer = make_pair(config["Eunseong"]["IP"].as<std::string>(), config["Eunseong"]["Port"].as<uint16_t>());
+			m_serverList.push_back(make_pair(ip, port));
+		}
+
+		m_connectServer = m_serverList.at(m_sendIndex);
 
 		lpnet::LpLogger::LOG_INFO("#YAML Load Config file is Success");
 	}
@@ -90,13 +81,25 @@ void LpClientConsole::LoadFile(std::string _filePath) {
 }
 
 void LpClientConsole::ClientMain() {
-	LpClient* lpClient = new LpClient();
-	{
-		m_ClientVector.push_back(lpClient);
+	for (uint32_t i = 0; i < m_threadCount; i++) {
+		std::thread* thread = new std::thread([&] {
+			LpClient* lpClient = new LpClient();
+			lpClient->Init(m_threadCount, m_sessionCount, m_ioBufferSize);
+			lpClient->Connect(m_connectServer.first, m_connectServer.second);
+			lpClient->Run();
+
+			m_clientThreadVector.push_back(make_pair(thread, lpClient));
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+			while (true) {
+				lpClient->TestSend();
+			}
+		});
 	}
+}
 
-	lpClient->Init(m_threadCount, m_sessionCount);
-
-	lpClient->Run();
+void LpClientConsole::Run() {
+	ClientMain();
 }
 }

@@ -10,6 +10,7 @@
 #include <thread>
 #include <unordered_map>
 #include <mutex>
+#include <concurrent_vector.h>
 
 #include "LpNetCore.h"
 #include "LpUtility.h"
@@ -35,21 +36,27 @@ public:
 	bool ProcessCommand();
 
 	void LoadFile(std::string _filePath);
-	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; }
 	void SetIOBufferSize(uint32_t _ioBufferSize) { m_ioBufferSize = _ioBufferSize; }
+	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; }
+	void SetSessionCount(uint32_t _sessionCount) { m_sessionCount = _sessionCount; }
 	void ClientMain();
 
+	void SetServerCount(uint32_t _serverCount) { m_serverCount = _serverCount; }
+	void SetSendIndex(uint32_t _sendIndex) { m_sendIndex = _sendIndex; }
+
+	void Run();
+
 private:
-	uint32_t m_threadCount;
-	uint32_t m_sendCount;
 	uint32_t m_ioBufferSize;
+	uint32_t m_threadCount;
 	uint32_t m_sessionCount;
 	
-	std::vector<std::thread*> m_threadVector;
-	std::vector<LpClient*> m_ClientVector;
+	concurrency::concurrent_vector<std::pair<std::thread*, LpClient*>> m_clientThreadVector;
 
-	std::pair<std::string, uint16_t> YeongjunServer;
-	std::pair<std::string, uint16_t> EunseongServer;
+	int m_serverCount;
+	int m_sendIndex;
+	std::vector<std::pair<std::string, uint16_t>> m_serverList;
+	std::pair<std::string, uint16_t> m_connectServer;
 
 	std::mutex m_mutex;
 };

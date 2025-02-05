@@ -16,6 +16,8 @@ int main() {
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
     _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
     _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
+
+	//_CrtSetBreakAlloc(2807);
 #endif
 
     LpServer* lpServer = new LpServer("192.168.20.241", 7777);
@@ -38,6 +40,8 @@ int main() {
     catch (std::exception& e) {
         std::cout << e.what() << "\n";
     }
+
+	delete lpServer;
 
     return 0;
 }

@@ -16,7 +16,6 @@ void LpLogger::LOG(ELogType _logType, const std::string& msg) {
 	localtime_s(&t, &(_time.time));
 	
 	setColor(_logType);
-	std::string logLevel = LOG_DESC[(int)_logType];
 
 	// [yyyy-mm-dd hh:mm:ss.ms]
 	os << t.tm_year + 1900 << ("-");
@@ -49,7 +48,7 @@ void LpLogger::LOG(ELogType _logType, const std::string& msg) {
 	os << std::setfill((' '))
 		<< std::setw(6)
 		<< std::left
-		<< logLevel << ("[");
+		<< LOG_DESC[(int)_logType] << ("[");
 
 	// ThreadID
 	std::thread::id threadID = std::this_thread::get_id();

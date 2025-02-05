@@ -39,5 +39,5 @@ private:
 	uint32_t m_ioBufferSize = 0;
 
 	lpnet::LpAcceptor* m_acceptor = nullptr;
-	std::vector<std::thread*> m_threadVector;
+	std::vector<std::thread*> m_asioThreadVector;
 };

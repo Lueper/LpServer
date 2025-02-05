@@ -4,28 +4,27 @@
 
 LpServer::LpServer() {
     m_acceptor = new lpnet::LpAcceptor();
-	m_threadVector.clear();
+	m_asioThreadVector.clear();
 }
 
 LpServer::LpServer(const std::string _ip, uint16_t _port) {
     m_acceptor = new lpnet::LpAcceptor();
     m_acceptor->Bind(_ip, _port);
-	m_threadVector.clear();
+	m_asioThreadVector.clear();
 }
 
 LpServer::~LpServer() {
-    delete m_acceptor;
 }
 
 void LpServer::LoadFile(std::string _filePath) {
     try {
 #ifdef _DEBUG
-        YAML::Node config = YAML::LoadFile(_filePath)["Debug"];
+		YAML::Node config = YAML::LoadFile(_filePath)["Server"]["Debug"];
 #else
-        YAML::Node config = YAML::LoadFile(_filePath)["Release"];
+		YAML::Node config = YAML::LoadFile(_filePath)["Server"]["Release"];
 #endif
-        SetThreadCount(config["Server"]["ThreadCount"].as<uint32_t>());
-        SetIOBufferSize(config["Server"]["IOBufferSize"].as<uint32_t>());
+		SetThreadCount(config["ThreadCount"].as<uint32_t>());
+		SetIOBufferSize(config["IOBufferSize"].as<uint32_t>());
 
 		lpnet::LpLogger::LOG_INFO("#YAML Load Config file is Success");
     }
@@ -68,7 +67,7 @@ void LpServer::Start() {
 		std::thread* thread = new std::thread([this] {
 			Run();
 		});
-		m_threadVector.push_back(thread);
+		m_asioThreadVector.push_back(thread);
     }
 }
 
@@ -79,16 +78,16 @@ void LpServer::Run() {
 void LpServer::Stop() {
 	m_acceptor->Stop();
 
-	for (auto& thread : m_threadVector)
+	for (auto& thread : m_asioThreadVector)
 	{
 		if (thread->joinable())
 			thread->join();
 	}
-	for (auto& thread : m_threadVector)
+	for (auto& thread : m_asioThreadVector)
 	{
 		delete thread;
 	}
-	m_threadVector.clear();
+	m_asioThreadVector.clear();
 }
 
 void LpServer::Release() {

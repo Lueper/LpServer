@@ -8,8 +8,10 @@
 #include <sys/timeb.h>
 #include <iomanip>
 #include <thread>
+#include <mutex>
 
 #include "LpUtility.h"
+#include "LpSingleton.h"
 
 enum class ELogType : uint8_t {
 	debug,
@@ -34,11 +36,12 @@ namespace lpnet {
 #define LOG_ERROR(msg)	LOG(ELogType::error, msg)
 #define LOG_FATAL(msg)	LOG(ELogType::fatal, msg)
 
-class LpLogger {
+class LpLogger : LpSingleton<LpLogger> {
 public:
 	static void LOG(ELogType _logType, const wchar_t* msg);
 	static void LOG(ELogType _logType, const std::string& msg);
 
+	static std::mutex m_mutex;
 private:
 	static void setColor(ELogType _logType);
 	static void resetColor();

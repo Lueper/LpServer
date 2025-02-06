@@ -2,12 +2,16 @@
 #include "LpLogger.h"
 
 namespace lpnet {
+std::mutex LpLogger::m_mutex;
+
 void LpLogger::LOG(ELogType _logType, const wchar_t* msg) {
 	std::wstring ws(msg);
 	LOG(_logType, std::string(ws.begin(), ws.end()));
 }
 
 void LpLogger::LOG(ELogType _logType, const std::string& msg) {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
 	std::ostringstream os;
 	struct _timeb	  _time;
 	tm				   t;

@@ -12,7 +12,6 @@
 
 #include "LpNetCore.h"
 #include "LpUtility.h"
-#include "LpLogger.h"
 
 using namespace boost;
 

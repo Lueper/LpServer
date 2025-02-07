@@ -7,3 +7,4 @@
 #include "LpEncryptor.h"
 #include "LpDecryptor.h"
 #include "LpLogger.h"
+#include "LpClientManager.h"

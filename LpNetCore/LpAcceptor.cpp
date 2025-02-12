@@ -4,11 +4,24 @@
 namespace lpnet {
 LpAcceptor::LpAcceptor() {
 	m_acceptor = new asio::ip::tcp::acceptor(*LpIOContext::GetIOContext());
-	m_running = false;
+	m_sessionPool = new LpSessionPool((LpIOContext*)this);
 }
 
 LpAcceptor::~LpAcceptor() {
 	delete m_acceptor;
+	m_acceptor = nullptr;
+	delete m_sessionPool;
+	m_sessionPool = nullptr;
+}
+
+void LpAcceptor::Init() {
+	m_running = true;
+
+	// Session Pool »ý¼º
+	for (uint32_t i = 0; i < SESSION_POOL_SIZE; i++) {
+		LpSession* session = m_sessionPool->Alloc();
+		m_sessionPool->Push(session);
+	}
 }
 
 void LpAcceptor::Bind(const std::string _ip, uint16_t _port) {
@@ -30,36 +43,62 @@ void LpAcceptor::Listen(int32_t _backLog) {
 }
 
 void LpAcceptor::AsyncAccept() {
-	LpSession* session = nullptr;
+	if (m_running == false || m_acceptor == nullptr) {
+		return;
+	}
+
+	LpSession* session = m_sessionPool->Pop();
+
+	if (session == nullptr) {
+		return;
+	}
 
 	try {
-		session = new LpSession(LpIOContext::GetIOContext(), GetIOBufferMaxSize());
-
 		m_acceptor->async_accept(*session->GetSocket()
 			, std::bind(&LpAcceptor::OnAccept, this, session, std::placeholders::_1));
-
-		LpLogger::LOG_INFO("#LpAcceptor AsyncAccept");
 	}
 	catch (...) {
-		delete session;
+		m_sessionPool->Push(session);
 	}
 }
 
 void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error) {
-	if (_error) {
-		LpLogger::LOG_ERROR("#LpAcceptor OnAccept Fail");
-		delete _session;
+	if (m_running == false) {
+		if (_session->GetSocket()->is_open() == true) {
+			_session->GetSocket()->shutdown(asio::socket_base::shutdown_both);
+			_session->GetSocket()->close();
+		}
+
+		m_sessionPool->Push(_session);
+		return;
 	}
-	else {
-		LpLogger::LOG_INFO("#LpAcceptor OnAccept");
 
-		_session->Read();
-    }
+	if (_error) {
+		if (_session->GetSocket()->is_open() == true) {
+			_session->GetSocket()->shutdown(asio::socket_base::shutdown_both);
+			_session->GetSocket()->close();
+		}
 
-	AsyncAccept();
+		m_sessionPool->Push(_session);
+
+		std::ostringstream os;
+		os << "#LpAcceptor OnAccept Fail : " << _error.message();
+		LpLogger::LOG_ERROR(os.str());
+
+		return;
+	}
+
+	_session->Read();
+
+	LpLogger::LOG_INFO("#LpAcceptor OnAccept");
+
+	if (m_acceptor->is_open() == true) {
+		AsyncAccept();
+	}
 }
 
 void LpAcceptor::Close() {
-
+	m_running = false;
+	m_acceptor->close();
 }
 }

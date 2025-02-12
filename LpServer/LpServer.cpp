@@ -25,6 +25,7 @@ void LpServer::LoadFile(std::string _filePath) {
 #endif
 		SetThreadCount(config["ThreadCount"].as<uint32_t>());
 		SetIOBufferSize(config["IOBufferSize"].as<uint32_t>());
+		SetSessionPoolSize(config["SessionPoolSize"].as<uint32_t>());
 
 		lpnet::LpLogger::LOG_INFO("#YAML Load Config file is Success");
     }
@@ -51,6 +52,9 @@ bool LpServer::ProcessCommand() {
 
 void LpServer::Init() {
 	m_acceptor->SetIOBufferMaxSize(m_ioBufferSize);
+	m_acceptor->SetSessionPoolSize(m_sessionPoolSize);
+
+	m_acceptor->Init();
 }
 
 void LpServer::Start() {
@@ -60,7 +64,8 @@ void LpServer::Start() {
     // 비동기 승인 시작
     m_acceptor->AsyncAccept();
 
-	int iWorkCnt = std::thread::hardware_concurrency() / 2;
+	//m_threadCount = std::thread::hardware_concurrency() / 2;
+	//m_threadCount = 1;
 
     // 이벤트가 없을 때까지 대기
     for (uint32_t i = 0; i < m_threadCount; i++) {
@@ -76,6 +81,7 @@ void LpServer::Run() {
 }
 
 void LpServer::Stop() {
+	m_acceptor->Close();
 	m_acceptor->Stop();
 
 	for (auto& thread : m_asioThreadVector)
@@ -92,4 +98,5 @@ void LpServer::Stop() {
 
 void LpServer::Release() {
 	delete m_acceptor;
+	m_acceptor = nullptr;
 }

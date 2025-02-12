@@ -12,6 +12,7 @@
 
 #include "LpIOContext.h"
 #include "LpSession.h"
+#include "LpSessionPool.h"
 #include "LpAcceptor.h"
 #include "LpPacket.h"
 #include "LpPacketHandler.h"

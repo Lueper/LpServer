@@ -29,7 +29,7 @@ public:
 	~LpClient();
 
 	//void Init();
-	void Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioBufferSize);
+	void Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioBufferSize, uint32_t _sessionPoolSize);
 	void Run();
 	void Connect(const std::string _ip, uint16_t _port);
 	void OnConnect(lpnet::LpSession* _session, const system::error_code& _error);
@@ -37,26 +37,31 @@ public:
 	void Close();
 	void Stop();
 	void Release();
+	void AsyncWait();
+	void OnWait(lpnet::LpSession* _session, const system::error_code& _error);
+	void OnWait(const system::error_code& _error);
 	
 	void SetIOBufferSize(uint32_t _ioBufferSize) { m_ioBufferSize = _ioBufferSize; };
 	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; };
 	void SetSessionCount(uint32_t _sessionCount) { m_sessionCount = _sessionCount; };
+	void SetSessionPoolSize(uint32_t _size) { m_sessionPoolSize = _size; };
 
 	void TestSend();
 private:
 	asio::ip::tcp::resolver* m_resolver;
 	asio::ip::tcp::endpoint* m_endPoint;
+	asio::steady_timer* m_timer;
 
 	lpnet::LpAcceptor* m_acceptor = nullptr;
 	lpnet::LpSession* m_session = nullptr;
+	lpnet::LpSessionPool* m_sessionPool= nullptr;
 
 	std::vector<std::thread*> m_asioThreadVector;
-	std::vector<LpSession*> m_SessionVector;
+	std::vector<LpSession*> m_sessionVector;
 
 	uint32_t m_ioBufferSize;
 	uint32_t m_threadCount;
 	uint32_t m_sessionCount;
-
-	std::atomic<int> m_sendCount;
+	uint32_t m_sessionPoolSize;
 };
 }

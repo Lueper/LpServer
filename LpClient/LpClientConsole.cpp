@@ -31,12 +31,12 @@ bool LpClientConsole::ProcessCommand() {
 	}
 
 	if (command.find("send") != std::string::npos) {
-		for (int i = 0; i < 100; i++) {
-			for (auto& clientThread : m_clientThreadVector) {
-				clientThread.second->TestSend();
-				//std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			}
-		}
+		//for (int i = 0; i < 100; i++) {
+		//	for (auto& clientThread : m_clientThreadVector) {
+		//		clientThread.second->TestSend();
+		//		//std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		//	}
+		//}
 	}
 
 	if (command.find("exit") != std::string::npos) {
@@ -58,6 +58,7 @@ void LpClientConsole::LoadFile(std::string _filePath) {
 		SetIOBufferSize(config["IOBufferSize"].as<uint32_t>());
 		SetThreadCount(config["ThreadCount"].as<uint32_t>());
 		SetSessionCount(config["SessionCount"].as<uint32_t>());
+		SetSessionPoolSize(config["SessionPoolSize"].as<uint32_t>());
 		
 		SetServerCount(config["ServerCount"].as<int>());
 		SetSendIndex(config["SendIndex"].as<int>());
@@ -82,18 +83,48 @@ void LpClientConsole::LoadFile(std::string _filePath) {
 
 void LpClientConsole::ClientMain() {
 	for (uint32_t i = 0; i < m_threadCount; i++) {
-		std::thread* thread = new std::thread([&] {
+		std::thread* clientThread = new std::thread([&] {
+			std::lock_guard<std::mutex> lock(m_mutex);
 			LpClient* lpClient = new LpClient();
-			lpClient->Init(m_threadCount, m_sessionCount, m_ioBufferSize);
+			lpClient->Init(m_threadCount, m_sessionCount, m_ioBufferSize, m_sessionPoolSize);
 			lpClient->Connect(m_connectServer.first, m_connectServer.second);
-			lpClient->Run();
 
-			m_clientThreadVector.push_back(make_pair(thread, lpClient));
+			for (uint32_t i = 0; i < 4; i++) {
+				std::thread* thread = new std::thread([&] {
+					lpClient->Run();
+					lpClient->AsyncWait();
+
+				});
+				m_asioThreadVector.push_back(thread);
+			}
+
+			m_clientThreadVector.push_back(make_pair(clientThread, lpClient));
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-			while (true) {
+			int i = 0;
+			bool flag = true;
+			while (i < 1000) {
+				i++;
 				lpClient->TestSend();
+
+				{
+					
+
+					LpClientManager::Instance()->AddTotalSendCount();
+					LpClientManager::Instance()->AddTotalSuccessCount();
+
+					std::ostringstream msg;
+					msg << "#Send [SendCnt(suc/cnt): " << LpClientManager::Instance()->GetSuccessCount()
+						<< "/" << LpClientManager::Instance()->GetSendCount()
+						<< "][TotalCnt(suc/cnt): " << LpClientManager::Instance()->GetTotalSuccessCount()
+						<< "/" << LpClientManager::Instance()->GetTotalSendCount() << "]";
+
+					LpLogger::LOG_INFO(msg.str());
+
+					LpClientManager::Instance()->ResetSendCount();
+					LpClientManager::Instance()->ResetSuccessCount();
+				}
 			}
 		});
 	}

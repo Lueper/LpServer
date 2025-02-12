@@ -39,6 +39,7 @@ public:
 	void SetIOBufferSize(uint32_t _ioBufferSize) { m_ioBufferSize = _ioBufferSize; }
 	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; }
 	void SetSessionCount(uint32_t _sessionCount) { m_sessionCount = _sessionCount; }
+	void SetSessionPoolSize(uint32_t _sessionPoolSize) { m_sessionPoolSize = _sessionPoolSize; };
 	void ClientMain();
 
 	void SetServerCount(uint32_t _serverCount) { m_serverCount = _serverCount; }
@@ -50,7 +51,9 @@ private:
 	uint32_t m_ioBufferSize;
 	uint32_t m_threadCount;
 	uint32_t m_sessionCount;
+	uint32_t m_sessionPoolSize;
 	
+	std::vector<std::thread*> m_asioThreadVector;
 	concurrency::concurrent_vector<std::pair<std::thread*, LpClient*>> m_clientThreadVector;
 
 	int m_serverCount;

@@ -8,12 +8,17 @@ namespace lpnet {
 //	m_sendBuffer = new char[65536];
 //}
 //
-//LpSession::LpSession(uint32_t _size) : m_socket(LpIOContext::Instance().GetIOContext()),
-//										m_readBuffer(_size), m_writeBuffer(_size) {
-//	SetIOBufferSize(_size);
-//	m_recvBuffer = new char[_size];
-//	m_sendBuffer = new char[_size];
-//}
+LpSession::LpSession(asio::io_context* _ioContext) : m_ioBufferSize(66536) {
+	m_socket = new asio::ip::tcp::socket(*_ioContext);
+	m_recvBuffer = new char[66536];
+	m_sendBuffer = new char[66536];
+	memset(m_recvBuffer, 0, 66536);
+	memset(m_sendBuffer, 0, 66536);
+	m_readBuffer = new LpBuffer(66536);
+	m_writeBuffer = new LpBuffer(66536);
+
+	memset(m_recvBuffer2, 0, 1024);
+}
 
 LpSession::LpSession(asio::io_context* _ioContext, uint32_t _size) : m_ioBufferSize(_size) {
 	m_socket = new asio::ip::tcp::socket(*_ioContext);
@@ -27,6 +32,7 @@ LpSession::LpSession(asio::io_context* _ioContext, uint32_t _size) : m_ioBufferS
 
 LpSession::~LpSession() {
 	delete m_socket;
+	m_socket = nullptr;
 	delete[] m_recvBuffer;
 	delete[] m_sendBuffer;
 	m_readBuffer->Clear();
@@ -38,6 +44,9 @@ LpSession::~LpSession() {
 void LpSession::Close() {
 	if (m_socket->is_open()) {
 		m_socket->close();
+
+		delete m_socket;
+		m_socket = nullptr;
 
 		LpLogger::LOG_INFO("#LpSession Close");
 	}
@@ -94,6 +103,10 @@ void LpSession::OnWrite(const system::error_code& _error, uint32_t _size) {
 }
 
 void LpSession::Init() {
+
+}
+
+void LpSession::Reset() {
 
 }
 

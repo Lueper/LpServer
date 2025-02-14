@@ -8,7 +8,7 @@ namespace lpnet {
 class LpSession {
 public:
 	LpSession();
-	LpSession(uint32_t _size);
+	LpSession(asio::io_context* _ioContext);
 	LpSession(asio::io_context* _ioContext, uint32_t _size);
 	~LpSession();
 
@@ -19,11 +19,17 @@ public:
 	void OnWrite(const system::error_code& _error, uint32_t _size);
 
 	void Init();
+	void Reset();
 	void Connect(const std::string _ip, uint16_t _port);
 	void Send(char* _buffer, uint32_t _size);
 
 	asio::ip::tcp::socket* GetSocket();
 	void SetIOBufferSize(uint32_t _size) { m_ioBufferSize = _size; };
+
+	bool IsSended() { return m_isSend; };
+
+	void SetSessionID(int _sessionID) { m_sessionID = _sessionID; };
+	int GetSessionID() { return m_sessionID; };
 private:
 	asio::ip::tcp::socket* m_socket;
 	asio::ip::tcp::endpoint* m_endpoint;
@@ -36,5 +42,10 @@ private:
 	uint32_t m_ioBufferSize;
 
 	std::recursive_mutex m_cMutex;
+
+	std::atomic<bool> m_isSend = false;
+	bool m_sendCnt = true;
+
+	std::atomic<int> m_sessionID;
 };
 }

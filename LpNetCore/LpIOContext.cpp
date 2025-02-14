@@ -29,6 +29,10 @@ void LpIOContext::Restart() {
 }
 
 asio::io_context* LpIOContext::GetIOContext() {
+	if (m_ioContext == nullptr) {
+		m_ioContext = new asio::io_context();
+	}
+
 	return m_ioContext;
 }
 }

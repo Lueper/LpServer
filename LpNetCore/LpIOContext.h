@@ -15,6 +15,9 @@ public:
 
 	asio::io_context* GetIOContext();
 
+protected:
+	std::atomic<bool> m_running;
+
 private:
 	asio::io_context* m_ioContext;
 };

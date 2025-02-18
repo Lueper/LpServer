@@ -36,7 +36,11 @@ void LpClient::Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioB
 }
 
 void LpClient::Run() {
-	m_acceptor->Run();
+	//m_acceptor->Run();
+
+	std::thread* thread = new std::thread([this] {
+		m_acceptor->Run();
+	});
 }
 
 void LpClient::Connect(const std::string _ip, uint16_t _port) {
@@ -109,11 +113,17 @@ void LpClient::AsyncWait() {
 	m_timer->expires_from_now(std::chrono::seconds(5));
 }
 
-void LpClient::OnWait(lpnet::LpSession* _session, const system::error_code& _error) {
-
-}
 void LpClient::OnWait(const system::error_code& _error) {
-	LpLogger::LOG_INFO("#OnWait");
+	lpnet::LpLogger::LOG_INFO("#LpClient OnWait");
+	TestSend();
+}
+
+void LpClient::CloseSessions() {
+	for (auto& session : m_sessionVector) {
+		session->Close();
+	}
+
+	lpnet::LpLogger::LOG_INFO("#LpSession Close All Sessions");
 }
 
 void LpClient::TestSend() {
@@ -127,10 +137,17 @@ void LpClient::TestSend() {
 	std::string str = std::string("qwerasdfzxcv");
 	str.copy(packet.payload, str.size());
 
+	//packet.tail.value = 97;
 	packet.tail.value = 255;
 
 	for (uint32_t sessionidx = 0; sessionidx < m_sessionCount; sessionidx++) {
-		if (m_sessionVector.at(sessionidx)->GetSocket()->is_open() == false) {
+		LpSession* session = m_sessionVector.at(sessionidx);
+		//if (session->GetSocket() == nullptr) {
+		//	sessionidx--;
+		//	continue;
+		//}
+		
+		if (session->GetSocket()->is_open() == false) {
 			sessionidx--;
 			continue;
 		}
@@ -142,8 +159,8 @@ void LpClient::TestSend() {
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<int> dist(0, 10);
-		//int randomNumber = dist(gen);
-		int randomNumber = 1;
+		int randomNumber = dist(gen);
+		//int randomNumber = 1;
 
 		for (int i = 0; i < randomNumber; i++) {
 			m_sessionVector.at(sessionidx)->Send(data, sizeof(packet));
@@ -168,7 +185,11 @@ void LpClient::TestSend() {
 
 			m_timer->async_wait(std::bind(&LpClient::OnWait, this, std::placeholders::_1));
 			m_timer->expires_from_now(std::chrono::seconds(5));
+
+			//std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}
+
+	CloseSessions();
 }
 }

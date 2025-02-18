@@ -45,7 +45,10 @@ public:
 	void SetServerCount(uint32_t _serverCount) { m_serverCount = _serverCount; }
 	void SetSendIndex(uint32_t _sendIndex) { m_sendIndex = _sendIndex; }
 
+	void ProcessClient(int index);
+
 	void Run();
+	void Stop();
 
 private:
 	uint32_t m_ioBufferSize;
@@ -62,5 +65,13 @@ private:
 	std::pair<std::string, uint16_t> m_connectServer;
 
 	std::mutex m_mutex;
+
+
+
+
+
+	std::atomic<bool> m_running;
+	std::vector<LpClient*> m_clientVector;
+	std::vector<std::thread> m_clientWorkVector;
 };
 }

@@ -38,8 +38,8 @@ public:
 	void Stop();
 	void Release();
 	void AsyncWait();
-	void OnWait(lpnet::LpSession* _session, const system::error_code& _error);
 	void OnWait(const system::error_code& _error);
+	void CloseSessions();
 	
 	void SetIOBufferSize(uint32_t _ioBufferSize) { m_ioBufferSize = _ioBufferSize; };
 	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; };

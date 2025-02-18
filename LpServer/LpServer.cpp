@@ -64,8 +64,7 @@ void LpServer::Start() {
     // 비동기 승인 시작
     m_acceptor->AsyncAccept();
 
-	//m_threadCount = std::thread::hardware_concurrency() / 2;
-	//m_threadCount = 1;
+	m_threadCount = std::thread::hardware_concurrency() / 2;
 
     // 이벤트가 없을 때까지 대기
     for (uint32_t i = 0; i < m_threadCount; i++) {

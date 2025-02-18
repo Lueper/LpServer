@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 #include "LpUtility.h"
 #include "LpSpinLock.h"
 
@@ -14,13 +16,16 @@ public:
 	void Clear();
 	void Push(char* _data, uint32_t _size);
 	void Pop(char* _data, uint32_t _size);
+	void OnPush(uint32_t _size);
 
 	char* GetBuffer();
 	uint32_t GetAvailableSize();
 	uint32_t GetBufferMaxSize();
+	uint32_t GetOffset() { return m_rCur; };
 
 private:
 	LpSpinLock m_spinLock;
+	std::mutex m_mutex;
 
 	const uint32_t	m_maxSize;
 	uint32_t		m_useSize;

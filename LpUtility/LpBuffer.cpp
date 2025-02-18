@@ -28,6 +28,7 @@ void LpBuffer::Clear()
 }
 
 void LpBuffer::Push(char* _data, uint32_t _size) {
+	//std::lock_guard<std::mutex> lock(m_mutex);
 	m_spinLock.Lock();
 
 	if (_data == nullptr || _size == 0 || _size > m_maxSize) {
@@ -56,6 +57,7 @@ void LpBuffer::Push(char* _data, uint32_t _size) {
 }
 
 void LpBuffer::Pop(char* _data, uint32_t _size) {
+	//std::lock_guard<std::mutex> lock(m_mutex);
 	m_spinLock.Lock();
 
 	if (_data == nullptr || _size == 0 || _size > m_maxSize || _size > m_useSize) {
@@ -83,6 +85,26 @@ void LpBuffer::Pop(char* _data, uint32_t _size) {
 	m_spinLock.UnLock();
 }
 
+void LpBuffer::OnPush(uint32_t _size) {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
+	if (_size == 0 || _size > m_maxSize) {
+		return;
+	}
+
+	if (_size <= m_maxSize - m_rCur) {
+		m_rCur += _size;
+	}
+	else {
+		uint32_t frontSize = m_maxSize - m_rCur;
+		uint32_t backSize = _size - frontSize;
+
+		m_rCur = backSize;
+	}
+
+	m_useSize += _size;
+}
+
 char* LpBuffer::GetBuffer() {
 	if (m_rCur >= m_maxSize) {
 		// error!
@@ -92,16 +114,18 @@ char* LpBuffer::GetBuffer() {
 }
 
 uint32_t LpBuffer::GetAvailableSize() {
-	m_spinLock.Lock();
+	std::lock_guard<std::mutex> lock(m_mutex);
+	//m_spinLock.Lock();
 	uint32_t size = m_maxSize - m_useSize;
-	m_spinLock.UnLock();
+	//m_spinLock.UnLock();
 	return size;
 }
 
 uint32_t LpBuffer::GetBufferMaxSize() {
-	m_spinLock.Lock();
+	std::lock_guard<std::mutex> lock(m_mutex);
+	//m_spinLock.Lock();
 	uint32_t size = m_maxSize;
-	m_spinLock.UnLock();
+	//m_spinLock.UnLock();
 	return size;
 }
 }

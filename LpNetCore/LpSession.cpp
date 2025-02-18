@@ -8,14 +8,14 @@ namespace lpnet {
 //	m_sendBuffer = new char[65536];
 //}
 //
-LpSession::LpSession(asio::io_context* _ioContext) : m_ioBufferSize(66536) {
+LpSession::LpSession(asio::io_context* _ioContext) : m_ioBufferSize(65536) {
 	m_socket = new asio::ip::tcp::socket(*_ioContext);
-	m_recvBuffer = new char[66536];
-	m_sendBuffer = new char[66536];
-	memset(m_recvBuffer, 0, 66536);
-	memset(m_sendBuffer, 0, 66536);
-	m_readBuffer = new LpBuffer(66536);
-	m_writeBuffer = new LpBuffer(66536);
+	m_recvBuffer = new char[m_ioBufferSize];
+	m_sendBuffer = new char[m_ioBufferSize];
+	memset(m_recvBuffer, 0, m_ioBufferSize);
+	memset(m_sendBuffer, 0, m_ioBufferSize);
+	m_readBuffer = new LpBuffer(m_ioBufferSize);
+	m_writeBuffer = new LpBuffer(m_ioBufferSize);
 
 	memset(m_recvBuffer2, 0, 1024);
 }
@@ -48,7 +48,7 @@ void LpSession::Close() {
 		delete m_socket;
 		m_socket = nullptr;
 
-		LpLogger::LOG_INFO("#LpSession Close");
+		//LpLogger::LOG_INFO("#LpSession Close");
 	}
 }
 
@@ -56,16 +56,24 @@ void LpSession::Read() {
 	if (m_socket->is_open() == false)
 		return;
 
-    m_socket->async_read_some(asio::mutable_buffer(m_recvBuffer, m_ioBufferSize)
-                , std::bind(&LpSession::OnRead, this, std::placeholders::_1, std::placeholders::_2));
+	m_socket->async_read_some(asio::mutable_buffer(m_recvBuffer, 150)
+		, std::bind(&LpSession::OnRead, this, std::placeholders::_1, std::placeholders::_2));
+
+	//m_socket->async_read_some(asio::mutable_buffer(m_readBuffer->GetBuffer(), m_readBuffer->GetAvailableSize())
+	//	, std::bind(&LpSession::OnRead, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 	if (_error.value() != 0) {
-		std::ostringstream errorMsg;
-		errorMsg << "#LpSession Read Fail - [value: " << _error.value() << "][msg: " << _error.message() << "]";
-		LpLogger::LOG_ERROR(errorMsg.str());
+		if (_error == asio::error::eof || _error == asio::error::connection_reset) {
 
+		}
+		else {
+			std::ostringstream errorMsg;
+			errorMsg << "#LpSession Read Fail - [value: " << _error.value() << "][msg: " << _error.message() << "]";
+			LpLogger::LOG_ERROR(errorMsg.str());
+		}
+		
 		Close();
 	
 		return;
@@ -73,11 +81,26 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 
 	m_readBuffer->Push(m_recvBuffer, _size);
 
-	// TODO: 다른 곳에서 처리
 	char* data = new char[_size];
 	m_readBuffer->Pop(data, _size);
 	LpPacketHandler::Instance()->Process(data, _size);
 	delete[] data;
+
+	//m_readBuffer->OnPush(_size);
+
+	//// TODO: 다른 곳에서 처리
+	//uint32_t remainSize = _size;
+	//uint32_t packetSize = sizeof(Packet);
+
+	//while (remainSize > 0) {
+	//	char* data = new char[packetSize];
+	//	m_readBuffer->Pop(data, packetSize);
+	//	LpPacketHandler::Instance()->Process(data, remainSize);
+	//	delete[] data;
+
+	//	remainSize -= packetSize;
+	//}
+
 
 	Read();
 }
@@ -100,6 +123,12 @@ void LpSession::OnWrite(const system::error_code& _error, uint32_t _size) {
 	
 	    return;
 	}
+
+	LpClientManager::Instance()->AddSuccessCount();
+
+	//std::ostringstream msg;
+	//msg << "#OnWrite [" << LpClientManager::Instance()->GetTotalSuccessCount() << "]";
+	//LpLogger::LOG_INFO(msg.str());
 }
 
 void LpSession::Init() {
@@ -119,7 +148,6 @@ void LpSession::Connect(const std::string _ip, uint16_t _port) {
 }
 
 void LpSession::Send(char* _buffer, uint32_t _size) {
-	
 	// 넣고
 	m_writeBuffer->Push(_buffer, _size);
 

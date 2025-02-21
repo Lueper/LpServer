@@ -9,6 +9,7 @@
 #include <memory>
 #include <thread>
 #include <random>
+#include <concurrent_unordered_map.h>
 
 #include "LpNetCore.h"
 #include "LpUtility.h"
@@ -30,6 +31,7 @@ public:
 
 	//void Init();
 	void Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioBufferSize, uint32_t _sessionPoolSize);
+	void Start();
 	void Run();
 	void Connect(const std::string _ip, uint16_t _port);
 	void OnConnect(lpnet::LpSession* _session, const system::error_code& _error);
@@ -52,12 +54,15 @@ private:
 	asio::ip::tcp::endpoint* m_endPoint;
 	asio::steady_timer* m_timer;
 
+	asio::io_context::work* m_work;
+
 	lpnet::LpAcceptor* m_acceptor = nullptr;
 	lpnet::LpSession* m_session = nullptr;
 	lpnet::LpSessionPool* m_sessionPool= nullptr;
 
 	std::vector<std::thread*> m_asioThreadVector;
 	std::vector<LpSession*> m_sessionVector;
+	std::unordered_map<int, LpSession*> m_sessionMap;
 
 	uint32_t m_ioBufferSize;
 	uint32_t m_threadCount;

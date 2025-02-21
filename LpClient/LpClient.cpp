@@ -11,6 +11,8 @@ LpClient::LpClient() {
 	m_sessionPool = new LpSessionPool((LpIOContext*)m_acceptor);
 	m_endPoint = nullptr;
 	m_timer = nullptr;
+
+	m_work = new asio::io_context::work(*m_acceptor->GetIOContext());
 }
 
 LpClient::~LpClient() {
@@ -36,11 +38,14 @@ void LpClient::Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioB
 }
 
 void LpClient::Run() {
-	//m_acceptor->Run();
+	m_threadCount = std::thread::hardware_concurrency() / 2;
 
-	std::thread* thread = new std::thread([this] {
-		m_acceptor->Run();
-	});
+	for (int i = 0; i < m_threadCount; i++) {
+		std::thread* thread = new std::thread([this] {
+			m_acceptor->Run();
+		});
+		m_asioThreadVector.push_back(thread);
+	}
 }
 
 void LpClient::Connect(const std::string _ip, uint16_t _port) {
@@ -53,9 +58,9 @@ void LpClient::Connect(const std::string _ip, uint16_t _port) {
 		session->GetSocket()->async_connect(*m_endPoint
 			, std::bind(&LpClient::OnConnect, this, session, std::placeholders::_1));
 
-		m_sessionVector.push_back(session);
+		session->SetState(SessionState::Connecting);
 
-		AsyncWait();
+		m_sessionMap.emplace(m_sessionPool->UseSessionID(), session);
 	}
 }
 
@@ -68,14 +73,16 @@ void LpClient::OnConnect(lpnet::LpSession* _session, const system::error_code& _
 	else {
 		lpnet::LpLogger::LOG_INFO("#LpSession OnConnect");
 	}
+
+	_session->SetState(SessionState::Connected);
+
+	TestSend();
 }
 
 void LpClient::Send(Packet* _packet, uint32_t _size) {
 	char* data = nullptr;
 	lpnet::LpPacketHandler::Instance()->ProcessSend(_packet, _size, &data);
 	m_session->Send(data, _size);
-
-	AsyncWait();
 }
 
 void LpClient::Close() {
@@ -109,19 +116,37 @@ void LpClient::AsyncWait() {
 		m_timer = new asio::steady_timer(*m_acceptor->GetIOContext());
 	}
 
+	// 5초 후, OnWait 호출
 	m_timer->async_wait(std::bind(&LpClient::OnWait, this, std::placeholders::_1));
 	m_timer->expires_from_now(std::chrono::seconds(5));
 }
 
 void LpClient::OnWait(const system::error_code& _error) {
 	lpnet::LpLogger::LOG_INFO("#LpClient OnWait");
-	TestSend();
 }
 
 void LpClient::CloseSessions() {
-	for (auto& session : m_sessionVector) {
-		session->Close();
+
+	bool isAllClosed = false;
+
+	while (!isAllClosed) {
+		int closeCount = 0;
+		//for (auto session = m_sessionMap.begin(); session != m_sessionMap.end(); session++) {
+		for (auto& session : m_sessionMap) {
+			if (session.second->GetState() == SessionState::Closed) {
+				session.second->Close();
+				m_sessionPool->Push(session.second);
+				closeCount++;
+			}
+
+			if (closeCount == m_sessionMap.size()) {
+				isAllClosed = true;
+				break;
+			}
+		}
 	}
+
+	m_sessionMap.clear();
 
 	lpnet::LpLogger::LOG_INFO("#LpSession Close All Sessions");
 }
@@ -140,17 +165,10 @@ void LpClient::TestSend() {
 	//packet.tail.value = 97;
 	packet.tail.value = 255;
 
-	for (uint32_t sessionidx = 0; sessionidx < m_sessionCount; sessionidx++) {
-		LpSession* session = m_sessionVector.at(sessionidx);
-		//if (session->GetSocket() == nullptr) {
-		//	sessionidx--;
-		//	continue;
-		//}
-		
-		if (session->GetSocket()->is_open() == false) {
-			sessionidx--;
-			continue;
-		}
+	//for (uint32_t sessionidx = 0; sessionidx < m_sessionCount; sessionidx++) {
+	//LpSession* session = m_sessionVector.at(sessionidx);
+	for (auto& iter : m_sessionMap) {
+		LpSession* session = iter.second;
 
 		char* data = nullptr;
 		lpnet::LpPacketHandler::Instance()->ProcessSend(&packet, sizeof(packet), &data);
@@ -159,37 +177,22 @@ void LpClient::TestSend() {
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<int> dist(0, 10);
-		int randomNumber = dist(gen);
-		//int randomNumber = 1;
+		//int randomNumber = dist(gen);
+		int randomNumber = 10;
+		
+		session->SetSendCnt(randomNumber);
 
 		for (int i = 0; i < randomNumber; i++) {
-			m_sessionVector.at(sessionidx)->Send(data, sizeof(packet));
+			session->Send(data, sizeof(packet));
 
 			LpClientManager::Instance()->AddSendCount();
-
-			//std::ostringstream msg;
-			//msg << "#LpPacketHandler Send : "
-			//	<< "[type:" << (uint8_t)packet.header.type << "]"
-			//	<< "[checkSum:" << packet.header.checkSum << "]"
-			//	<< "[size:" << (uint32_t)packet.header.size << "]"
-			//	<< "[payload:" << packet.payload << "]"
-			//	<< "[tail:" << (uint8_t)packet.tail.value << "]"
-			//	<< " count : " << sendCount;
-
-			//LpLogger::LOG_INFO(msg.str());
-
-			if (m_timer == nullptr)
-			{
-				m_timer = new asio::steady_timer(*m_acceptor->GetIOContext());
-			}
-
-			m_timer->async_wait(std::bind(&LpClient::OnWait, this, std::placeholders::_1));
-			m_timer->expires_from_now(std::chrono::seconds(5));
 
 			//std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}
 
-	CloseSessions();
+	//CloseSessions();
+
+	//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }
 }

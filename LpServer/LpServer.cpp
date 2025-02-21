@@ -64,19 +64,19 @@ void LpServer::Start() {
     // 비동기 승인 시작
     m_acceptor->AsyncAccept();
 
-	m_threadCount = std::thread::hardware_concurrency() / 2;
-
-    // 이벤트가 없을 때까지 대기
-    for (uint32_t i = 0; i < m_threadCount; i++) {
-		std::thread* thread = new std::thread([this] {
-			Run();
-		});
-		m_asioThreadVector.push_back(thread);
-    }
+    // 이벤트 수신 시작
+	Run();
 }
 
 void LpServer::Run() {
-	m_acceptor->Run();
+	m_threadCount = std::thread::hardware_concurrency() / 2;
+
+	for (uint32_t i = 0; i < m_threadCount; i++) {
+		std::thread* thread = new std::thread([this] {
+			m_acceptor->Run();
+		});
+		m_asioThreadVector.push_back(thread);
+	}
 }
 
 void LpServer::Stop() {

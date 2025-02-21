@@ -17,7 +17,7 @@ LpSession::LpSession(asio::io_context* _ioContext) : m_ioBufferSize(65536) {
 	m_readBuffer = new LpBuffer(m_ioBufferSize);
 	m_writeBuffer = new LpBuffer(m_ioBufferSize);
 
-	memset(m_recvBuffer2, 0, 1024);
+	SetState(SessionState::Closed);
 }
 
 LpSession::LpSession(asio::io_context* _ioContext, uint32_t _size) : m_ioBufferSize(_size) {
@@ -45,10 +45,10 @@ void LpSession::Close() {
 	if (m_socket->is_open()) {
 		m_socket->close();
 
-		delete m_socket;
-		m_socket = nullptr;
+		//delete m_socket;
+		//m_socket = nullptr;
 
-		//LpLogger::LOG_INFO("#LpSession Close");
+		LpLogger::LOG_INFO("#LpSession Close");
 	}
 }
 
@@ -125,10 +125,18 @@ void LpSession::OnWrite(const system::error_code& _error, uint32_t _size) {
 	}
 
 	LpClientManager::Instance()->AddSuccessCount();
+	
+	m_trySendCnt++;
 
-	//std::ostringstream msg;
-	//msg << "#OnWrite [" << LpClientManager::Instance()->GetTotalSuccessCount() << "]";
-	//LpLogger::LOG_INFO(msg.str());
+	std::ostringstream msg;
+	msg << "SendCount : [Try: " << m_trySendCnt << "][Send: " << m_sendCnt << "]";
+	LpLogger::LOG_DEBUG(msg.str());
+
+	if (m_trySendCnt >= m_sendCnt) {
+		if (m_socket != nullptr && m_socket->is_open() && GetState() == SessionState::Connected) {
+			SetState(SessionState::Closed);
+		}
+	}
 }
 
 void LpSession::Init() {

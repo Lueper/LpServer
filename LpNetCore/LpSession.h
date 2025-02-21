@@ -30,6 +30,11 @@ public:
 
 	void SetSessionID(int _sessionID) { m_sessionID = _sessionID; };
 	int GetSessionID() { return m_sessionID; };
+
+	void SetSendCnt(int _cnt) {	m_sendCnt = _cnt; m_trySendCnt = 0; };
+
+	void SetState(SessionState _state) { m_state = _state; };
+	SessionState GetState() { return m_state; };
 private:
 	asio::ip::tcp::socket* m_socket;
 	asio::ip::tcp::endpoint* m_endpoint;
@@ -44,8 +49,13 @@ private:
 	std::recursive_mutex m_cMutex;
 
 	std::atomic<bool> m_isSend = false;
-	bool m_sendCnt = true;
+	std::atomic<int> m_trySendCnt = 0;
+	std::atomic<int> m_sendCnt = 0;
+
+	std::atomic<int> m_writeCnt = 0;
 
 	std::atomic<int> m_sessionID;
+
+	SessionState m_state;
 };
 }

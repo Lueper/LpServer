@@ -92,7 +92,7 @@ void LpClientConsole::ClientMain() {
 			for (uint32_t i = 0; i < 4; i++) {
 				std::thread* thread = new std::thread([&] {
 					lpClient->Run();
-					lpClient->AsyncWait();
+					//lpClient->AsyncWait();
 
 				});
 				m_asioThreadVector.push_back(thread);
@@ -137,16 +137,20 @@ void LpClientConsole::ClientMain() {
 void LpClientConsole::ProcessClient(int index) {
 	LpClient* lpClient = m_clientVector[index];
 
-	while (m_running) {
+	int i = 0;
+	while (i < 10) {
+	//while (m_running) {
+		LpLogger::LOG_DEBUG("loop start");
 		lpClient->Connect(m_connectServer.first, m_connectServer.second);
-		lpClient->Run();
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		lpClient->AsyncWait();
+		//lpClient->Run();
 
 		//lpClient->TestSend();
 
-		//lpClient->CloseSessions();
-		lpClient->Stop();
+		lpClient->CloseSessions();
+
+		//std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+		//lpClient->Stop();
 
 		LpClientManager::Instance()->AddTotalSendCount();
 		LpClientManager::Instance()->AddTotalSuccessCount();
@@ -158,27 +162,33 @@ void LpClientConsole::ProcessClient(int index) {
 
 		LpClientManager::Instance()->ResetSendCount();
 		LpClientManager::Instance()->ResetSuccessCount();
+
+		//m_running = false;
+		i++;
+
+		LpLogger::LOG_DEBUG("loop end");
 	}
 }
 
 void LpClientConsole::Run() {
-	ClientMain();
+	//ClientMain();
 
-	//// Init
-	//m_running = true;
+	// Init
+	m_running = true;
 
-	//// Start
-	//for (int i = 0; i < m_threadCount; i++) {
-	//	LpClient* lpClient = new LpClient();
-	//	lpClient->Init(m_threadCount, m_sessionCount, m_ioBufferSize, m_sessionPoolSize);
-	//	m_clientVector.push_back(lpClient);
-	//}
+	// Start
+	for (int i = 0; i < m_threadCount; i++) {
+		LpClient* lpClient = new LpClient();
+		lpClient->Init(m_threadCount, m_sessionCount, m_ioBufferSize, m_sessionPoolSize);
+		lpClient->Run();
+		m_clientVector.push_back(lpClient);
+	}
 
-	//m_clientWorkVector = std::vector<std::thread>(m_threadCount);
+	m_clientWorkVector = std::vector<std::thread>(m_threadCount);
 
-	//for (int i = 0; i < m_threadCount; i++) {
-	//	m_clientWorkVector[i] = std::thread(&LpClientConsole::ProcessClient, this, i);
-	//}
+	for (int i = 0; i < m_threadCount; i++) {
+		m_clientWorkVector[i] = std::thread(&LpClientConsole::ProcessClient, this, i);
+	}
 
 }
 

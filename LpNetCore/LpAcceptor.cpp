@@ -88,6 +88,7 @@ void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error)
 		return;
 	}
 
+	// TODO: Process loop·Î º¯°æ
 	_session->Read();
 
 	LpLogger::LOG_INFO("#LpAcceptor OnAccept");

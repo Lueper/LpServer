@@ -10,6 +10,8 @@
 #include "boost/bind.hpp"
 #include "boost/system.hpp"
 
+#include "LpNetEnum.h"
+
 #include "LpIOContext.h"
 #include "LpSession.h"
 #include "LpSessionPool.h"

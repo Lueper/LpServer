@@ -14,8 +14,10 @@ public:
 	LpSession* Pop();
 	void Push(LpSession* _session);
 
-private:
+	// TODO: private으로 수정
 	int UseSessionID();
+
+private:
 
 	std::atomic<int> m_currentSessionID = 0;
 	LpIOContext* m_ioContext;

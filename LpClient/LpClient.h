@@ -42,6 +42,7 @@ public:
 	void AsyncWait();
 	void OnWait(const system::error_code& _error);
 	void CloseSessions();
+	void CheckSessions();
 	
 	void SetIOBufferSize(uint32_t _ioBufferSize) { m_ioBufferSize = _ioBufferSize; };
 	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; };
@@ -49,6 +50,8 @@ public:
 	void SetSessionPoolSize(uint32_t _size) { m_sessionPoolSize = _size; };
 
 	void TestSend();
+
+	uint32_t m_sendCount = 0;
 private:
 	asio::ip::tcp::resolver* m_resolver;
 	asio::ip::tcp::endpoint* m_endPoint;
@@ -68,5 +71,7 @@ private:
 	uint32_t m_threadCount;
 	uint32_t m_sessionCount;
 	uint32_t m_sessionPoolSize;
+
+	uint32_t m_connectTryCount = 0;
 };
 }

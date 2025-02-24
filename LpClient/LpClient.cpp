@@ -61,22 +61,37 @@ void LpClient::Connect(const std::string _ip, uint16_t _port) {
 		session->SetState(SessionState::Connecting);
 
 		m_sessionMap.emplace(m_sessionPool->UseSessionID(), session);
-	}
+	} 
 }
 
 void LpClient::OnConnect(lpnet::LpSession* _session, const system::error_code& _error) {
 	if (_error) {
-		lpnet::LpLogger::LOG_ERROR("#LpSession OnConnect Fail");
-		m_sessionPool->Push(_session);
+		if (m_connectTryCount >= 10) {
+			lpnet::LpLogger::LOG_ERROR("#LpSession OnConnect Fail : Connection TryCount Exceeded");
+			m_sessionPool->Push(_session);
+			_session = m_sessionPool->Alloc();
+			m_connectTryCount = 0;
+			return;
+		}
+
+		if (_session->GetState() == SessionState::Connecting) {
+			_session->GetSocket()->async_connect(*m_endPoint
+				, std::bind(&LpClient::OnConnect, this, _session, std::placeholders::_1));
+		}
+
+		m_connectTryCount++;
+
 		return;
 	}
 	else {
 		lpnet::LpLogger::LOG_INFO("#LpSession OnConnect");
+
+		m_connectTryCount = 0;
 	}
 
 	_session->SetState(SessionState::Connected);
 
-	TestSend();
+	//TestSend();
 }
 
 void LpClient::Send(Packet* _packet, uint32_t _size) {
@@ -126,7 +141,6 @@ void LpClient::OnWait(const system::error_code& _error) {
 }
 
 void LpClient::CloseSessions() {
-
 	bool isAllClosed = false;
 
 	while (!isAllClosed) {
@@ -149,6 +163,24 @@ void LpClient::CloseSessions() {
 	m_sessionMap.clear();
 
 	lpnet::LpLogger::LOG_INFO("#LpSession Close All Sessions");
+}
+
+void LpClient::CheckSessions() {
+	bool isAllConnected = false;
+
+	while (!isAllConnected) {
+		int connectedCount = 0;
+		for (auto& session : m_sessionMap) {
+			if (session.second->GetState() == SessionState::Connected) {
+				connectedCount++;
+			}
+
+			if (connectedCount == m_sessionMap.size()) {
+				isAllConnected = true;
+				break;
+			}
+		}
+	}
 }
 
 void LpClient::TestSend() {
@@ -185,7 +217,9 @@ void LpClient::TestSend() {
 		for (int i = 0; i < randomNumber; i++) {
 			session->Send(data, sizeof(packet));
 
+			m_sendCount++;
 			LpClientManager::Instance()->AddSendCount();
+			//LpLogger::LOG_DEBUG(to_string(LpClientManager::Instance()->GetSendCount()));
 
 			//std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}

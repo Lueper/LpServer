@@ -5,6 +5,7 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <unordered_map>
 
 #include "boost/asio.hpp"
 #include "boost/bind.hpp"

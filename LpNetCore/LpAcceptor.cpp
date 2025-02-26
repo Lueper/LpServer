@@ -53,6 +53,10 @@ void LpAcceptor::AsyncAccept() {
 		return;
 	}
 
+	session->SetSessionID(m_sessionPool->UseSessionID());
+	session->SetState(SessionState::Waiting);
+	m_sessionMap.insert(make_pair(session->GetSessionID(), session));
+
 	try {
 		m_acceptor->async_accept(*session->GetSocket()
 			, std::bind(&LpAcceptor::OnAccept, this, session, std::placeholders::_1));
@@ -63,12 +67,18 @@ void LpAcceptor::AsyncAccept() {
 }
 
 void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error) {
+	if (_session == nullptr) {
+		return;
+	}
+
 	if (m_running == false) {
 		if (_session->GetSocket()->is_open() == true) {
 			_session->GetSocket()->shutdown(asio::socket_base::shutdown_both);
 			_session->GetSocket()->close();
 		}
 
+		_session->SetState(SessionState::Closed);
+		m_sessionMap.erase(_session->GetSessionID());
 		m_sessionPool->Push(_session);
 		return;
 	}
@@ -79,6 +89,9 @@ void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error)
 			_session->GetSocket()->close();
 		}
 
+		_session->SetState(SessionState::Closed);
+		//m_sessionMap.erase(_session->GetSessionID());
+
 		m_sessionPool->Push(_session);
 
 		std::ostringstream os;
@@ -88,13 +101,34 @@ void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error)
 		return;
 	}
 
+	_session->SetState(SessionState::Connected);
+
 	// TODO: Process loop·Î º¯°æ
 	_session->Read();
 
-	LpLogger::LOG_INFO("#LpAcceptor OnAccept");
+	//LpLogger::LOG_INFO("#LpAcceptor OnAccept");
 
 	if (m_acceptor->is_open() == true) {
 		AsyncAccept();
+		//Waiting(_session);
+	}
+}
+
+void LpAcceptor::Waiting(LpSession* _session) {
+	if (m_running == false || m_acceptor == nullptr) {
+		return;
+	}
+
+	if (_session == nullptr) {
+		return;
+	}
+
+	try {
+		m_acceptor->async_accept(*_session->GetSocket()
+			, std::bind(&LpAcceptor::OnAccept, this, _session, std::placeholders::_1));
+	}
+	catch (...) {
+		m_sessionPool->Push(_session);
 	}
 }
 

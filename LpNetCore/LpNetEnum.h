@@ -3,6 +3,7 @@
 namespace lpnet {
 enum class SessionState : uint8_t {
 	Closed = 0,
+	Waiting,
 	Connecting,
 	Connected
 };

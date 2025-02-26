@@ -34,11 +34,17 @@ public:
 	void Stop();
 	void Release();
 
+	void ProcessIO(int _index);
+
 private:
 	uint32_t m_threadCount = 0;
+	int m_ioThreadCount = 4;
 	uint32_t m_ioBufferSize = 0;
 	uint32_t m_sessionPoolSize = 0;
 
+	std::atomic<bool> m_running;
+
 	lpnet::LpAcceptor* m_acceptor = nullptr;
 	std::vector<std::thread*> m_asioThreadVector;
+	std::vector<std::thread*> m_ioThreadVector;
 };

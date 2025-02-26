@@ -48,7 +48,7 @@ void LpSession::Close() {
 		//delete m_socket;
 		//m_socket = nullptr;
 
-		LpLogger::LOG_INFO("#LpSession Close");
+		//LpLogger::LOG_INFO("#LpSession Close");
 	}
 }
 
@@ -73,6 +73,8 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 			errorMsg << "#LpSession Read Fail - [value: " << _error.value() << "][msg: " << _error.message() << "]";
 			LpLogger::LOG_ERROR(errorMsg.str());
 		}
+
+		SetState(SessionState::Closed);
 		
 		Close();
 	
@@ -81,10 +83,12 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 
 	m_readBuffer->Push(m_recvBuffer, _size);
 
-	char* data = new char[_size];
-	m_readBuffer->Pop(data, _size);
-	LpPacketHandler::Instance()->Process(data, _size);
-	delete[] data;
+	//char* data = new char[_size];
+	//m_readBuffer->Pop(data, _size);
+	//LpPacketHandler::Instance()->Process(data, _size);
+	//delete[] data;
+
+	///////////////////////////////////////////////////////
 
 	//m_readBuffer->OnPush(_size);
 
@@ -110,6 +114,11 @@ void LpSession::Write(uint32_t _size) {
 		return;
 
 	m_writeBuffer->Pop(m_sendBuffer, _size);
+
+	m_trySendCnt++;
+	//std::ostringstream msg;
+	//msg << "SendCount : [Try: " << m_trySendCnt << "][Send: " << m_sendCnt << "]";
+	//LpLogger::LOG_DEBUG(msg.str());
 	
 	m_socket->async_write_some(asio::mutable_buffer(m_sendBuffer, _size)
 				, std::bind(&LpSession::OnWrite, this, std::placeholders::_1, std::placeholders::_2));
@@ -124,13 +133,9 @@ void LpSession::OnWrite(const system::error_code& _error, uint32_t _size) {
 	    return;
 	}
 
-	LpClientManager::Instance()->AddSuccessCount();
-	
-	m_trySendCnt++;
-
-	std::ostringstream msg;
-	msg << "SendCount : [Try: " << m_trySendCnt << "][Send: " << m_sendCnt << "]";
-	LpLogger::LOG_DEBUG(msg.str());
+	//std::ostringstream msg;
+	//msg << "SendCount : [Try: " << m_trySendCnt << "][Send: " << m_sendCnt << "]";
+	//LpLogger::LOG_DEBUG(msg.str());
 
 	if (m_trySendCnt >= m_sendCnt) {
 		if (m_socket != nullptr && m_socket->is_open() && GetState() == SessionState::Connected) {

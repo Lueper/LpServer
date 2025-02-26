@@ -64,18 +64,28 @@ void LpServer::Start() {
     // 비동기 승인 시작
     m_acceptor->AsyncAccept();
 
-    // 이벤트 수신 시작
+	// 이벤트 수신 시작
 	Run();
 }
 
 void LpServer::Run() {
+	m_running = true;
+	
 	m_threadCount = std::thread::hardware_concurrency() / 2;
 
+	// asio 이벤트 대기
 	for (uint32_t i = 0; i < m_threadCount; i++) {
 		std::thread* thread = new std::thread([this] {
 			m_acceptor->Run();
 		});
 		m_asioThreadVector.push_back(thread);
+	}
+
+	// I/O Queue 데이터 처리
+	//for (int i = 0; i < m_ioThreadCount; i++) {
+	for (int i = 0; i < m_threadCount; i++) {
+		std::thread* thread = new std::thread(std::bind(&LpServer::ProcessIO, this, i));
+		m_ioThreadVector.push_back(thread);
 	}
 }
 
@@ -98,4 +108,29 @@ void LpServer::Stop() {
 void LpServer::Release() {
 	delete m_acceptor;
 	m_acceptor = nullptr;
+}
+
+void LpServer::ProcessIO(int _index) {
+	while (m_running) {
+		int _size = sizeof(Packet);
+
+		if (m_acceptor->GetSessions().empty() == true) {
+			continue;
+		}
+
+		for (auto& session : m_acceptor->GetSessions()) {
+			// TODO: 세션이 닫힌 상태면 지워줘야 함
+			//if ((*session.second).GetState() == lpnet::SessionState::Closed) {
+			//	m_acceptor->m_sessionMap.erase((*session.second).GetSessionID());
+			//	continue;
+			//}
+
+			if ((*session.second).GetReadBuffer()->GetUseSize() > 0) {
+				char* data = new char[_size];
+				(*session.second).GetReadBuffer()->Pop(data, _size);
+				lpnet::LpPacketHandler::Instance()->Process(data, _size);
+				delete[] data;
+			}
+		}
+	}
 }

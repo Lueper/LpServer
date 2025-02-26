@@ -35,6 +35,8 @@ public:
 
 	void SetState(SessionState _state) { m_state = _state; };
 	SessionState GetState() { return m_state; };
+
+	LpBuffer* GetReadBuffer() { return m_readBuffer; };
 private:
 	asio::ip::tcp::socket* m_socket;
 	asio::ip::tcp::endpoint* m_endpoint;

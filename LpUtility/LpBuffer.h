@@ -19,9 +19,10 @@ public:
 	void OnPush(uint32_t _size);
 
 	char* GetBuffer();
+	uint32_t GetUseSize();
 	uint32_t GetAvailableSize();
 	uint32_t GetBufferMaxSize();
-	uint32_t GetOffset() { return m_rCur; };
+	uint32_t GetOffset();
 
 private:
 	LpSpinLock m_spinLock;

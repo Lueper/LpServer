@@ -46,10 +46,10 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 		return;
 	}
 
-	//if (packetHeader->size < _size || packetHeader->size > _size) {
-	//	// TODO: _data를 다시 받아야 하는 경우
-	//	return;
-	//}
+	if (packetHeader->size < _size || packetHeader->size > _size) {
+		//LpLogger::LOG_ERROR("#LpPacketHandler packet size is different");
+		return;
+	}
 
 	switch (packetHeader->type) {
 		case 100:
@@ -103,11 +103,13 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 		<< "[tail:" << (uint8_t)packetTail->value << "]"
 		<< " count : " << m_sendCount;
 
-	LpLogger::LOG_INFO(msg.str());
+	LpLogger::LOG_DEBUG(msg.str());
 
 	free(packetHeader);
 	free(packetPayload);
 	free(packetTail);
+
+	//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }
 
 void LpPacketHandler::ProcessSend(Packet* _packet, uint32_t _size, char** _data) {

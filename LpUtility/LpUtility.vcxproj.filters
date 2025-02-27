@@ -45,6 +45,9 @@
     <ClInclude Include="LpClientManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="LpScopedTimer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LpUtility.cpp">
@@ -66,6 +69,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="LpLogger.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LpScopedTimer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,3 +8,4 @@
 #include "LpDecryptor.h"
 #include "LpLogger.h"
 #include "LpClientManager.h"
+#include "LpScopedTimer.h"

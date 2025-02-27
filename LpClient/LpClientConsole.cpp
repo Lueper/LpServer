@@ -109,10 +109,8 @@ void LpClientConsole::ClientMain() {
 				lpClient->TestSend();
 
 				{
-					
-
-					LpClientManager::Instance()->AddTotalSendCount();
-					LpClientManager::Instance()->AddTotalSuccessCount();
+					//LpClientManager::Instance()->AddTotalSendCount();
+					//LpClientManager::Instance()->AddTotalSuccessCount();
 
 					//std::ostringstream msg;
 					//msg << "#Send [SendCnt(suc/cnt): " << LpClientManager::Instance()->GetSuccessCount()
@@ -120,14 +118,14 @@ void LpClientConsole::ClientMain() {
 					//	<< "][TotalCnt(suc/cnt): " << LpClientManager::Instance()->GetTotalSuccessCount()
 					//	<< "/" << LpClientManager::Instance()->GetTotalSendCount() << "]";
 
-					std::ostringstream msg;
-					msg << "#Send [SendCnt: " << LpClientManager::Instance()->GetSendCount()
-						<< "][TotalCnt: " << LpClientManager::Instance()->GetTotalSendCount() << "]";
+					//std::ostringstream msg;
+					//msg << "#Send [SendCnt: " << LpClientManager::Instance()->GetSendCount()
+					//	<< "][TotalCnt: " << LpClientManager::Instance()->GetTotalSendCount() << "]";
 
-					LpLogger::LOG_INFO(msg.str());
+					//LpLogger::LOG_INFO(msg.str());
 
-					LpClientManager::Instance()->ResetSendCount();
-					LpClientManager::Instance()->ResetSuccessCount();
+					//LpClientManager::Instance()->ResetSendCount();
+					//LpClientManager::Instance()->ResetSuccessCount();
 				}
 			}
 		});
@@ -138,11 +136,9 @@ void LpClientConsole::ProcessClient(int index) {
 	LpClient* lpClient = m_clientVector[index];
 
 	int i = 0;
-	while (i < 100) {
+	while (i < 10) {
 	//while (m_running) {
-		LpLogger::LOG_DEBUG("loop start");
 		lpClient->Connect(m_connectServer.first, m_connectServer.second);
-		//lpClient->Run();
 
 		lpClient->CheckSessions();
 
@@ -150,24 +146,35 @@ void LpClientConsole::ProcessClient(int index) {
 
 		lpClient->CloseSessions();
 
-		//std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-		//lpClient->Stop();
-
-		//LpClientManager::Instance()->AddTotalSuccessCount();
-
+		LpClientManager::Instance()->AddTotalCount(lpClient->m_sendCount);
 		std::ostringstream msg;
-		msg << "#LpClient [" << index << "] Send [SendCnt: " << lpClient->m_sendCount << "]";
-		LpLogger::LOG_INFO(msg.str());
+		msg << "#LpClient [" << index << "] Send [Send: " << lpClient->m_sendCount
+			<< "][Total:" << LpClientManager::Instance()->GetTotalCount() << "]";
+		LpLogger::LOG_DEBUG(msg.str());
 
-		LpClientManager::Instance()->ResetSendCount();
-		LpClientManager::Instance()->ResetSuccessCount();
+		lpClient->m_sendCount = 0;
 
-		//m_running = false;
 		i++;
 
-		LpLogger::LOG_DEBUG("loop end");
+		//std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
+}
+
+void LpClientConsole::ProcessLog() {
+	//uint32_t prevCount = 0;
+	//uint32_t currCount = 0;
+
+	//while (m_running) {
+	//	currCount = LpClientManager::Instance()->GetTotalCount();
+	//	if (prevCount != currCount) {
+	//		std::ostringstream msg;
+	//		msg << "#LpClientConsole Total [Cnt: " << currCount << "]";
+	//		LpLogger::LOG_INFO(msg.str());
+	//		prevCount = currCount;
+	//	}
+
+	//	LpClientManager::Instance()->AddTotalCount();
+	//}
 }
 
 void LpClientConsole::Run() {
@@ -190,6 +197,7 @@ void LpClientConsole::Run() {
 		m_clientWorkVector[i] = std::thread(&LpClientConsole::ProcessClient, this, i);
 	}
 
+	std::thread* logThread = new std::thread(&LpClientConsole::ProcessLog, this);
 }
 
 void LpClientConsole::Stop() {

@@ -46,6 +46,7 @@ public:
 	void SetSendIndex(uint32_t _sendIndex) { m_sendIndex = _sendIndex; }
 
 	void ProcessClient(int index);
+	void ProcessLog();
 
 	void Run();
 	void Stop();

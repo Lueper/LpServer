@@ -6,6 +6,7 @@
 #include <mutex>
 #include <thread>
 #include <unordered_map>
+#include <concurrent_queue.h>
 
 #include "boost/asio.hpp"
 #include "boost/bind.hpp"
@@ -19,6 +20,7 @@
 #include "LpAcceptor.h"
 #include "LpPacket.h"
 #include "LpPacketHandler.h"
+#include "LpNetManager.h"
 
 #include "LpUtility.h"
 

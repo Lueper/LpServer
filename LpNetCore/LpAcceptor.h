@@ -27,9 +27,13 @@ public:
 
 	std::unordered_map<int, LpSession*> m_sessionMap;
 
+	void SetNetManager(LpNetManager* _manager) { m_netManager = _manager; };
+	LpNetManager* GetNetManager() {	return m_netManager; };
+
 private:
 	asio::ip::tcp::acceptor* m_acceptor;
 	LpSessionPool* m_sessionPool;
+	LpNetManager* m_netManager;
 
 	//std::unordered_map<int, LpSession*> m_sessionMap;
 

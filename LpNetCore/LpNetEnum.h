@@ -8,18 +8,20 @@ enum class SessionState : uint8_t {
 	Connected
 };
 
-enum class IOType : uint8_t {
+enum class NetTaskType : uint8_t {
 	None = 0,
-	Read,
-	Write
+	Receive,
+	Send
 };
 
-enum class NetEvent : uint8_t {
-	None = 0,
-	Accept,
-	Connect,
-	Read,
-	Write,
-	Wait
-};
+//enum class NetTaskType : uint8_t {
+//	None = 0,
+//	Accept,
+//	Connect,
+//	Read,
+//	Receive,
+//	Write,
+//	Send,
+//	Wait
+//};
 }

@@ -45,6 +45,9 @@
     <ClInclude Include="LpNetEnum.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="LpNetManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LpNetCore.cpp">
@@ -66,6 +69,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="LpSessionPool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LpNetManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

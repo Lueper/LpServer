@@ -2,10 +2,12 @@
 
 #include "LpNetCore.h"
 #include "LpBuffer.h"
+#include "LpNetManager.h"
 
 namespace lpnet {
 	using namespace boost;
 class LpSession {
+	using NetTaskQueue = concurrency::concurrent_queue<NetTask*>;
 public:
 	LpSession();
 	LpSession(asio::io_context* _ioContext);
@@ -15,8 +17,10 @@ public:
 	void Close();
 	void Read();
 	void OnRead(const system::error_code& _error, uint32_t _size);
+	void ProcessReceive();
 	void Write(uint32_t _size);
 	void OnWrite(const system::error_code& _error, uint32_t _size);
+	void ProcessSend();
 
 	void Init();
 	void Reset();
@@ -37,9 +41,14 @@ public:
 	SessionState GetState() { return m_state; };
 
 	LpBuffer* GetReadBuffer() { return m_readBuffer; };
+
+	void SetNetManager(LpNetManager* _manager) { m_netManager = _manager; };
+	LpNetManager* GetNetManager() { return m_netManager; };
 private:
 	asio::ip::tcp::socket* m_socket;
 	asio::ip::tcp::endpoint* m_endpoint;
+
+	LpNetManager* m_netManager;
 
 	char* m_recvBuffer;
 	char* m_sendBuffer;
@@ -59,5 +68,7 @@ private:
 	std::atomic<int> m_sessionID;
 
 	SessionState m_state;
+
+	int count = 0;
 };
 }

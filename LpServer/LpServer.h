@@ -34,7 +34,7 @@ public:
 	void Stop();
 	void Release();
 
-	void ProcessIO(int _index);
+	void ProcessNetTask(int _index);
 
 private:
 	uint32_t m_threadCount = 0;
@@ -45,6 +45,7 @@ private:
 	std::atomic<bool> m_running;
 
 	lpnet::LpAcceptor* m_acceptor = nullptr;
+	lpnet::LpNetManager* m_netManager = nullptr;
 	std::vector<std::thread*> m_asioThreadVector;
 	std::vector<std::thread*> m_ioThreadVector;
 };

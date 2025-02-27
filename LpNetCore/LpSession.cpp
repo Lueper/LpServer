@@ -83,6 +83,11 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 
 	m_readBuffer->Push(m_recvBuffer, _size);
 
+	NetTask* netTask = new NetTask(NetTaskType::Receive, this);
+	m_netManager->GetNetTaskQueue().push(netTask);
+
+	//m_readBuffer->Push(m_recvBuffer, _size);
+
 	//char* data = new char[_size];
 	//m_readBuffer->Pop(data, _size);
 	//LpPacketHandler::Instance()->Process(data, _size);
@@ -105,8 +110,20 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 	//	remainSize -= packetSize;
 	//}
 
-
 	Read();
+}
+
+void LpSession::ProcessReceive() {
+	int _size = sizeof(Packet);
+
+	if (GetReadBuffer()->GetUseSize() > 0) {
+		char* data = new char[_size];
+		GetReadBuffer()->Pop(data, _size);
+		lpnet::LpPacketHandler::Instance()->Process(data, _size);
+		delete[] data;
+		
+		//LpLogger::LOG_DEBUG(to_string(++count));
+	}
 }
 
 void LpSession::Write(uint32_t _size) {
@@ -142,6 +159,10 @@ void LpSession::OnWrite(const system::error_code& _error, uint32_t _size) {
 			SetState(SessionState::Closed);
 		}
 	}
+}
+
+void LpSession::ProcessSend() {
+
 }
 
 void LpSession::Init() {

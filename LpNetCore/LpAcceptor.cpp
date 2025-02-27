@@ -12,6 +12,8 @@ LpAcceptor::~LpAcceptor() {
 	m_acceptor = nullptr;
 	delete m_sessionPool;
 	m_sessionPool = nullptr;
+	delete m_netManager;
+	m_netManager = nullptr;
 }
 
 void LpAcceptor::Init() {
@@ -101,6 +103,7 @@ void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error)
 		return;
 	}
 
+	_session->SetNetManager(m_netManager);
 	_session->SetState(SessionState::Connected);
 
 	// TODO: Process loop·Î º¯°æ

@@ -18,6 +18,7 @@ public:
 	void Read();
 	void OnRead(const system::error_code& _error, uint32_t _size);
 	void ProcessReceive();
+	void ProcessReceive(int& _recvCount);
 	void Write(uint32_t _size);
 	void OnWrite(const system::error_code& _error, uint32_t _size);
 	void ProcessSend();
@@ -54,6 +55,7 @@ private:
 	char* m_sendBuffer;
 	LpBuffer* m_readBuffer;
 	LpBuffer* m_writeBuffer;
+	char* m_recvData;
 
 	uint32_t m_ioBufferSize;
 
@@ -69,6 +71,6 @@ private:
 
 	SessionState m_state;
 
-	int count = 0;
+	std::atomic<int> m_sendCount = 0;
 };
 }

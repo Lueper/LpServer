@@ -3,8 +3,9 @@
 #include <iostream>
 
 #pragma pack(push, 1)
-// 21 bytes
+// 25 bytes
 struct PacketHeader {
+	uint32_t seqNum;
 	uint8_t type;
 	char checkSum[16];
 	uint32_t size;
@@ -15,7 +16,7 @@ struct PacketTail {
 	uint8_t value;
 };
 
-// 150 bytes
+// 154 bytes
 struct Packet {
 	PacketHeader header;
 	char		 payload[128];

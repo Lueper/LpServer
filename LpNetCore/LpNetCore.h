@@ -5,8 +5,10 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <map>
 #include <unordered_map>
 #include <concurrent_queue.h>
+#include <concurrent_unordered_map.h>
 
 #include "boost/asio.hpp"
 #include "boost/bind.hpp"

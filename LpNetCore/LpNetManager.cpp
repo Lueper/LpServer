@@ -32,12 +32,30 @@ void LpNetManager::Process() {
 		}
 
 		switch (task->m_type) {
-		case NetTaskType::Receive:
-			task->m_session->ProcessReceive();
+		case NetTaskType::Receive: {
+			int recvCount = 0;
+			int totalCount = 0;
+
+			task->m_session->ProcessReceive(recvCount);
+
+			if (recvCount > 0) {
+				AddSessionRecvCount(task->m_session->GetSessionID(), recvCount, totalCount);
+				m_totalCount += recvCount;
+
+				// 1. 세션별 Count 출력
+				//std::ostringstream msg;
+				//msg << "#LpSession Receive : [ID: " << task->m_session->GetSessionID()
+				//	<< "][Count: " << totalCount
+				//	<< "][Total: " << m_totalCount
+				//	<< "]";
+				//LpLogger::LOG_DEBUG(msg.str());
+			}
 			break;
-		case NetTaskType::Send:
+		}
+		case NetTaskType::Send: {
 			task->m_session->ProcessSend();
 			break;
+		}
 		default:
 			break;
 		}
@@ -50,5 +68,17 @@ void LpNetManager::Stop() {
 
 concurrency::concurrent_queue<NetTask*>& LpNetManager::GetNetTaskQueue() {
 	return m_netTaskQueue;
+}
+
+void LpNetManager::AddSessionRecvCount(int _sessionID, int _recvCount, int& _totalCount) {
+	auto iter = m_sessionRecvCountMap.find(_sessionID);
+	if (iter == m_sessionRecvCountMap.end()) {
+		m_sessionRecvCountMap.insert(make_pair(_sessionID, _recvCount));
+		_totalCount = _recvCount;
+	}
+	else {
+		iter->second += _recvCount;
+		_totalCount = iter->second;
+	}
 }
 }

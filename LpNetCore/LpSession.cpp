@@ -16,6 +16,7 @@ LpSession::LpSession(asio::io_context* _ioContext) : m_ioBufferSize(65536) {
 	memset(m_sendBuffer, 0, m_ioBufferSize);
 	m_readBuffer = new LpBuffer(m_ioBufferSize);
 	m_writeBuffer = new LpBuffer(m_ioBufferSize);
+	m_recvData = new char[m_ioBufferSize];
 
 	SetState(SessionState::Closed);
 }
@@ -28,6 +29,7 @@ LpSession::LpSession(asio::io_context* _ioContext, uint32_t _size) : m_ioBufferS
 	memset(m_sendBuffer, 0, m_ioBufferSize);
 	m_readBuffer = new LpBuffer(m_ioBufferSize);
 	m_writeBuffer = new LpBuffer(m_ioBufferSize);
+	m_recvData = new char[m_ioBufferSize];
 }
 
 LpSession::~LpSession() {
@@ -39,6 +41,7 @@ LpSession::~LpSession() {
 	m_writeBuffer->Clear();
 	delete m_readBuffer;
 	delete m_writeBuffer;
+	delete m_recvData;
 }
 
 void LpSession::Close() {
@@ -56,7 +59,7 @@ void LpSession::Read() {
 	if (m_socket->is_open() == false)
 		return;
 
-	m_socket->async_read_some(asio::mutable_buffer(m_recvBuffer, 150)
+	m_socket->async_read_some(asio::mutable_buffer(m_recvBuffer, m_ioBufferSize)
 		, std::bind(&LpSession::OnRead, this, std::placeholders::_1, std::placeholders::_2));
 
 	//m_socket->async_read_some(asio::mutable_buffer(m_readBuffer->GetBuffer(), m_readBuffer->GetAvailableSize())
@@ -116,13 +119,22 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 void LpSession::ProcessReceive() {
 	int _size = sizeof(Packet);
 
-	if (GetReadBuffer()->GetUseSize() > 0) {
-		char* data = new char[_size];
-		GetReadBuffer()->Pop(data, _size);
-		lpnet::LpPacketHandler::Instance()->Process(data, _size);
-		delete[] data;
-		
-		//LpLogger::LOG_DEBUG(to_string(++count));
+	while (GetReadBuffer()->GetUseSize() > 0) {
+
+		GetReadBuffer()->Pop(m_recvData, _size);
+		lpnet::LpPacketHandler::Instance()->Process(m_recvData, _size);
+	}
+}
+
+void LpSession::ProcessReceive(int& _recvCount) {
+	int _size = sizeof(Packet);
+
+	while (GetReadBuffer()->GetUseSize() > 0) {
+
+		GetReadBuffer()->Pop(m_recvData, _size);
+		lpnet::LpPacketHandler::Instance()->Process(m_recvData, _size);
+
+		_recvCount++;
 	}
 }
 

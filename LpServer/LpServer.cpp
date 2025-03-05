@@ -89,10 +89,10 @@ void LpServer::Run() {
 
 	// I/O Queue 데이터 처리
 	//for (int i = 0; i < m_ioThreadCount; i++) {
-	for (int i = 0; i < m_threadCount; i++) {
-		std::thread* thread = new std::thread(std::bind(&LpServer::ProcessNetTask, this, i));
-		m_ioThreadVector.push_back(thread);
-	}
+	//for (int i = 0; i < m_threadCount; i++) {
+	//	std::thread* thread = new std::thread(std::bind(&LpServer::ProcessNetTask, this, i));
+	//	m_ioThreadVector.push_back(thread);
+	//}
 }
 
 void LpServer::Stop() {
@@ -119,29 +119,29 @@ void LpServer::Release() {
 }
 
 void LpServer::ProcessNetTask(int _index) {
-	while (m_running) {
-		//int _size = sizeof(Packet);
+	//while (m_running) {
+	//	int _size = sizeof(Packet);
 
-		//if (m_acceptor->GetSessions().empty() == true) {
-		//	continue;
-		//}
+	//	if (m_acceptor->GetSessions().empty() == true) {
+	//		continue;
+	//	}
 
-		//for (auto& session : m_acceptor->GetSessions()) {
-		//	// TODO: 세션이 닫힌 상태면 지워줘야 함
-		//	//if ((*session.second).GetState() == lpnet::SessionState::Closed) {
-		//	//	m_acceptor->m_sessionMap.erase((*session.second).GetSessionID());
-		//	//	continue;
-		//	//}
+	//	for (auto& session : m_acceptor->GetSessions()) {
+	//		// TODO: 세션이 닫힌 상태면 지워줘야 함
+	//		//if ((*session.second).GetState() == lpnet::SessionState::Closed) {
+	//		//	m_acceptor->m_sessionMap.erase((*session.second).GetSessionID());
+	//		//	continue;
+	//		//}
 
-		//	if ((*session.second).GetReadBuffer()->GetUseSize() > 0) {
-		//		char* data = new char[_size];
-		//		(*session.second).GetReadBuffer()->Pop(data, _size);
-		//		lpnet::LpPacketHandler::Instance()->Process(data, _size);
-		//		delete[] data;
-		//	}
-		//}
+	//		if ((*session.second).GetReadBuffer()->GetUseSize() > 0) {
+	//			char* data = new char[_size];
+	//			(*session.second).GetReadBuffer()->Pop(data, _size);
+	//			lpnet::LpPacketHandler::Instance()->Process(data, _size);
+	//			delete[] data;
+	//		}
+	//	}
 
-		//m_netManager->Pop();
-		//LpNetManager::Instance()->Pop();
-	}
+	//	m_netManager->Pop();
+	//	LpNetManager::Instance()->Pop();
+	//}
 }

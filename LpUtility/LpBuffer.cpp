@@ -29,7 +29,7 @@ void LpBuffer::Clear() {
 void LpBuffer::Push(char* _data, uint32_t _size) {
 	m_spinLock.Lock();
 
-	if (_data == nullptr || _size == 0 || _size > m_maxSize) {
+	if (_data == nullptr || _size <= 0 || _size > m_maxSize) {
 		m_spinLock.UnLock();
 		return;
 	}
@@ -57,7 +57,7 @@ void LpBuffer::Push(char* _data, uint32_t _size) {
 void LpBuffer::Pop(char* _data, uint32_t _size) {
 	m_spinLock.Lock();
 
-	if (_data == nullptr || _size == 0 || _size > m_maxSize || _size > m_useSize) {
+	if (_data == nullptr || _size <= 0 || _size > m_maxSize || _size > m_useSize) {
 		m_spinLock.UnLock();
 		return;
 	}

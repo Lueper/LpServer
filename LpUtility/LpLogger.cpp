@@ -4,22 +4,18 @@
 namespace lpnet {
 std::mutex LpLogger::m_mutex;
 
-void LpLogger::LOG(ELogType _logType, const wchar_t* msg) {
-	std::wstring ws(msg);
+void LpLogger::LOG(ELogType _logType, const wchar_t* _msg) {
+	std::wstring ws(_msg);
 	LOG(_logType, std::string(ws.begin(), ws.end()));
 }
 
-void LpLogger::LOG(ELogType _logType, const std::string& msg) {
-	std::lock_guard<std::mutex> lock(m_mutex);
-
+void LpLogger::LOG(ELogType _logType, const std::string& _msg) {
 	std::ostringstream os;
 	struct _timeb	  _time;
 	tm				   t;
 
 	_ftime64_s(&_time);
 	localtime_s(&t, &(_time.time));
-	
-	setColor(_logType);
 
 	// [yyyy-mm-dd hh:mm:ss.ms]
 	os << t.tm_year + 1900 << ("-");
@@ -58,14 +54,21 @@ void LpLogger::LOG(ELogType _logType, const std::string& msg) {
 	std::thread::id threadID = std::this_thread::get_id();
 	os << threadID << ("] ");
 
-	os << msg << std::endl;
+	os << _msg << "\n";
 
-	std::cout << os.str();
-
-	resetColor();
+	Print(_logType, os.str());
 }
 
-void LpLogger::setColor(ELogType _logType) {
+void LpLogger::Print(ELogType _logType, const std::string& _os) {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
+	SetColor(_logType);
+	std::cout << _os;
+	//WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), _os.c_str(), static_cast<DWORD>(_os.size()), NULL, NULL);
+	ResetColor();
+}
+
+void LpLogger::SetColor(ELogType _logType) {
 	switch (_logType) {
 	case ELogType::debug:	// cyan
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
@@ -86,7 +89,7 @@ void LpLogger::setColor(ELogType _logType) {
 	}
 }
 
-void LpLogger::resetColor() {
+void LpLogger::ResetColor() {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 }
 }

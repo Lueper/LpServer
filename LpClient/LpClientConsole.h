@@ -40,10 +40,13 @@ public:
 	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; }
 	void SetSessionCount(uint32_t _sessionCount) { m_sessionCount = _sessionCount; }
 	void SetSessionPoolSize(uint32_t _sessionPoolSize) { m_sessionPoolSize = _sessionPoolSize; };
+	void SetClientReconnectCount(uint32_t _count) { m_clientReconnectCount = _count; };
+	void SetSessionSendCount(uint32_t _count) { m_sessionSendCount = _count; };
 	void ClientMain();
 
 	void SetServerCount(uint32_t _serverCount) { m_serverCount = _serverCount; }
 	void SetSendIndex(uint32_t _sendIndex) { m_sendIndex = _sendIndex; }
+
 
 	void ProcessClient(int index);
 	void ProcessLog();
@@ -56,6 +59,9 @@ private:
 	uint32_t m_threadCount;
 	uint32_t m_sessionCount;
 	uint32_t m_sessionPoolSize;
+
+	int m_clientReconnectCount;
+	int m_sessionSendCount;
 	
 	std::vector<std::thread*> m_asioThreadVector;
 	concurrency::concurrent_vector<std::pair<std::thread*, LpClient*>> m_clientThreadVector;

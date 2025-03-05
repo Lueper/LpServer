@@ -30,7 +30,7 @@ public:
 	~LpClient();
 
 	//void Init();
-	void Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioBufferSize, uint32_t _sessionPoolSize);
+	void Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioBufferSize, uint32_t _sessionPoolSize, int _sessionSendCount);
 	void Start();
 	void Run();
 	void Connect(const std::string _ip, uint16_t _port);
@@ -48,6 +48,8 @@ public:
 	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; };
 	void SetSessionCount(uint32_t _sessionCount) { m_sessionCount = _sessionCount; };
 	void SetSessionPoolSize(uint32_t _size) { m_sessionPoolSize = _size; };
+	
+	void SetSessionSendCount(int _count) { m_sessionSendCount = _count; };
 
 	void TestSend();
 
@@ -73,5 +75,7 @@ private:
 	uint32_t m_sessionPoolSize;
 
 	uint32_t m_connectTryCount = 0;
+	uint32_t m_sequenceNumber = 0;
+	int m_sessionSendCount = 0;
 };
 }

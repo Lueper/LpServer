@@ -59,6 +59,9 @@ void LpClientConsole::LoadFile(std::string _filePath) {
 		SetThreadCount(config["ThreadCount"].as<uint32_t>());
 		SetSessionCount(config["SessionCount"].as<uint32_t>());
 		SetSessionPoolSize(config["SessionPoolSize"].as<uint32_t>());
+
+		SetClientReconnectCount(config["ClientReconnectCount"].as<int>());
+		SetSessionSendCount(config["SessionSendCount"].as<int>());
 		
 		SetServerCount(config["ServerCount"].as<int>());
 		SetSendIndex(config["SendIndex"].as<int>());
@@ -86,7 +89,7 @@ void LpClientConsole::ClientMain() {
 		std::thread* clientThread = new std::thread([&] {
 			std::lock_guard<std::mutex> lock(m_mutex);
 			LpClient* lpClient = new LpClient();
-			lpClient->Init(m_threadCount, m_sessionCount, m_ioBufferSize, m_sessionPoolSize);
+			lpClient->Init(m_threadCount, m_sessionCount, m_ioBufferSize, m_sessionPoolSize, m_sessionSendCount);
 			lpClient->Connect(m_connectServer.first, m_connectServer.second);
 
 			for (uint32_t i = 0; i < 4; i++) {
@@ -136,8 +139,8 @@ void LpClientConsole::ProcessClient(int index) {
 	LpClient* lpClient = m_clientVector[index];
 
 	int i = 0;
-	while (i < 10) {
 	//while (m_running) {
+	while (i < m_clientReconnectCount) {
 		lpClient->Connect(m_connectServer.first, m_connectServer.second);
 
 		lpClient->CheckSessions();
@@ -156,7 +159,7 @@ void LpClientConsole::ProcessClient(int index) {
 
 		i++;
 
-		//std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 	}
 }
 
@@ -186,7 +189,7 @@ void LpClientConsole::Run() {
 	// Start
 	for (int i = 0; i < m_threadCount; i++) {
 		LpClient* lpClient = new LpClient();
-		lpClient->Init(m_threadCount, m_sessionCount, m_ioBufferSize, m_sessionPoolSize);
+		lpClient->Init(m_threadCount, m_sessionCount, m_ioBufferSize, m_sessionPoolSize, m_sessionSendCount);
 		lpClient->Run();
 		m_clientVector.push_back(lpClient);
 	}
@@ -197,7 +200,7 @@ void LpClientConsole::Run() {
 		m_clientWorkVector[i] = std::thread(&LpClientConsole::ProcessClient, this, i);
 	}
 
-	std::thread* logThread = new std::thread(&LpClientConsole::ProcessLog, this);
+	//std::thread* logThread = new std::thread(&LpClientConsole::ProcessLog, this);
 }
 
 void LpClientConsole::Stop() {

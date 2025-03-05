@@ -24,11 +24,12 @@ LpClient::~LpClient() {
 	delete m_timer;
 }
 
-void LpClient::Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioBufferSize, uint32_t _sessionPoolSize) {
+void LpClient::Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioBufferSize, uint32_t _sessionPoolSize, int _sessionSendCount) {
 	SetThreadCount(_threadCount);
 	SetSessionCount(_sessionCount);
 	SetIOBufferSize(_ioBufferSize);
 	SetSessionPoolSize(_sessionPoolSize);
+	SetSessionSendCount(_sessionSendCount);
 
 	// Session Pool 생성
 	for (uint32_t i = 0; i < m_sessionPoolSize; i++) {
@@ -68,10 +69,11 @@ void LpClient::OnConnect(lpnet::LpSession* _session, const system::error_code& _
 	if (_error) {
 		if (m_connectTryCount >= 10) {
 			lpnet::LpLogger::LOG_ERROR("#LpSession OnConnect Fail : Connection TryCount Exceeded");
-			m_sessionPool->Push(_session);
-			_session = m_sessionPool->Alloc();
+			//m_sessionPool->Push(_session);
+			//_session = m_sessionPool->Alloc();
 			m_connectTryCount = 0;
-			return;
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
 
 		if (_session->GetState() == SessionState::Connecting) {
@@ -84,7 +86,7 @@ void LpClient::OnConnect(lpnet::LpSession* _session, const system::error_code& _
 		return;
 	}
 	else {
-		lpnet::LpLogger::LOG_INFO("#LpSession OnConnect");
+		//lpnet::LpLogger::LOG_INFO("#LpSession OnConnect");
 
 		m_connectTryCount = 0;
 	}
@@ -184,44 +186,45 @@ void LpClient::CheckSessions() {
 }
 
 void LpClient::TestSend() {
-	Packet packet;
-
-	packet.header.type = 101;
-	memset(packet.header.checkSum, 0, sizeof(packet.header.checkSum));
-	packet.header.size = sizeof(Packet);
-
-	memset(packet.payload, 0, sizeof(packet.payload));
-	std::string str = std::string("qwerasdfzxcv");
-	str.copy(packet.payload, str.size());
-
-	//packet.tail.value = 97;
-	packet.tail.value = 255;
-
-	//for (uint32_t sessionidx = 0; sessionidx < m_sessionCount; sessionidx++) {
-	//LpSession* session = m_sessionVector.at(sessionidx);
 	for (auto& iter : m_sessionMap) {
-		LpSession* session = iter.second;
+		Packet packet;
 
-		char* data = nullptr;
-		lpnet::LpPacketHandler::Instance()->ProcessSend(&packet, sizeof(packet), &data);
+		packet.header.seqNum = 0;
+		packet.header.type = 101;
+		memset(packet.header.checkSum, 0, sizeof(packet.header.checkSum));
+		packet.header.size = sizeof(Packet);
+
+		memset(packet.payload, 0, sizeof(packet.payload));
+		//std::string str = std::string("qwerasdfjeisljfsefsfzefirkdilslsdasdasdasekd,ckdiildeir");
+		//std::string str = to_string(LpClientManager::Instance()->GetTotalCount() + 1);
+		std::string str = std::string("asdfasdfasdfasdfsadfasddfcasdf");
+		str.copy(packet.payload, 128);
+
+		//packet.tail.value = 97;
+		packet.tail.value = 255;
+
+		LpSession* session = iter.second;
 
 		// 랜덤 전송 테스트
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_int_distribution<int> dist(0, 10);
+		std::uniform_int_distribution<int> dist(1, 10);
 		//int randomNumber = dist(gen);
-		int randomNumber = 10;
+		int randomNumber = m_sessionSendCount;
+		//int randomNumber = 10;
 		
 		session->SetSendCnt(randomNumber);
 
 		for (int i = 0; i < randomNumber; i++) {
+			char* data = nullptr;
+			lpnet::LpPacketHandler::Instance()->ProcessSend(&packet, sizeof(packet), &data);
 			session->Send(data, sizeof(packet));
 
 			m_sendCount++;
-			LpClientManager::Instance()->AddSendCount();
-			//LpLogger::LOG_DEBUG(to_string(LpClientManager::Instance()->GetSendCount()));
+			packet.header.seqNum++;
+			//LpClientManager::Instance()->AddSendCount();
 
-			//std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}
 

@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "LpPool.h"
 #include "LpBuffer.h"
 #include "LpSpinLock.h"
 #include "LpEncryptor.h"

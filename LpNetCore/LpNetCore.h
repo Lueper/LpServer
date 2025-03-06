@@ -23,6 +23,7 @@
 #include "LpPacket.h"
 #include "LpPacketHandler.h"
 #include "LpNetManager.h"
+#include "LpPacketDataPool.h"
 
 #include "LpUtility.h"
 

@@ -19,6 +19,13 @@ LpSession::LpSession(asio::io_context* _ioContext) : m_ioBufferSize(65536) {
 	m_recvData = new char[m_ioBufferSize];
 
 	SetState(SessionState::Closed);
+
+	m_netManager = new LpNetManager();
+	m_packetDataPool = new LpPacketDataPool();
+	for (uint32_t i = 0; i < 1000; i++) {
+		char* packetData = m_packetDataPool->Alloc();
+		m_packetDataPool->Push(packetData);
+	}
 }
 
 LpSession::LpSession(asio::io_context* _ioContext, uint32_t _size) : m_ioBufferSize(_size) {
@@ -42,6 +49,9 @@ LpSession::~LpSession() {
 	delete m_readBuffer;
 	delete m_writeBuffer;
 	delete m_recvData;
+
+	delete m_netManager;
+	delete m_packetDataPool;
 }
 
 void LpSession::Close() {
@@ -120,7 +130,6 @@ void LpSession::ProcessReceive() {
 	int _size = sizeof(Packet);
 
 	while (GetReadBuffer()->GetUseSize() > 0) {
-
 		GetReadBuffer()->Pop(m_recvData, _size);
 		lpnet::LpPacketHandler::Instance()->Process(m_recvData, _size);
 	}
@@ -131,8 +140,13 @@ void LpSession::ProcessReceive(int& _recvCount) {
 
 	while (GetReadBuffer()->GetUseSize() > 0) {
 
-		GetReadBuffer()->Pop(m_recvData, _size);
-		lpnet::LpPacketHandler::Instance()->Process(m_recvData, _size);
+		char* data = new char[_size];
+		//char* data = m_packetDataPool->Pop();
+
+		GetReadBuffer()->Pop(data, _size);
+		lpnet::LpPacketHandler::Instance()->Process(data, _size);
+		delete data;
+		//m_packetDataPool->Push(data);
 
 		_recvCount++;
 	}

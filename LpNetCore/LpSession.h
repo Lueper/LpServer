@@ -3,6 +3,7 @@
 #include "LpNetCore.h"
 #include "LpBuffer.h"
 #include "LpNetManager.h"
+#include "LpPacketDataPool.h"
 
 namespace lpnet {
 	using namespace boost;
@@ -50,6 +51,7 @@ private:
 	asio::ip::tcp::endpoint* m_endpoint;
 
 	LpNetManager* m_netManager;
+	LpPacketDataPool* m_packetDataPool;
 
 	char* m_recvBuffer;
 	char* m_sendBuffer;

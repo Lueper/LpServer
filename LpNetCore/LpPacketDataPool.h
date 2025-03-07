@@ -3,10 +3,9 @@
 #include "LpNetCore.h"
 
 namespace lpnet {
-class LpPacketDataPool : public LpPool<char*> {
+class LpPacketDataPool : public LpPool<char> {
 public:
-	void Alloc();
+	//char* Alloc();
 private:
-
 };
 }

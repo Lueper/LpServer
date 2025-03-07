@@ -20,7 +20,7 @@ public:
 		m_poolQueue.clear();
 	}
 
-	virtual T* Alloc() {
+	T* Alloc() {
 		T* obj = new T();
 		if (obj == nullptr) {
 			return nullptr;

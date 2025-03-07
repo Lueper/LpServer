@@ -22,6 +22,6 @@ private:
 	std::atomic<int> m_currentSessionID = 0;
 	LpIOContext* m_ioContext;
 
-	Concurrency::concurrent_queue<LpSession*> m_queueSessionPool;
+	concurrency::concurrent_queue<LpSession*> m_queueSessionPool;
 };
 }

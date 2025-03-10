@@ -35,7 +35,8 @@ void LpBuffer::Push(char* _data, uint32_t _size) {
 	}
 
 	if (_size <= m_maxSize - m_rCur) {
-		memcpy_s(m_buffer + m_rCur, _size, _data, _size);
+		//memcpy_s(m_buffer + m_rCur, _size, _data, _size);
+		memcpy(m_buffer + m_rCur, _data, _size);
 
 		m_rCur += _size;
 	}
@@ -43,8 +44,10 @@ void LpBuffer::Push(char* _data, uint32_t _size) {
 		uint32_t frontSize = m_maxSize - m_rCur;
 		uint32_t backSize = _size - frontSize;
 
-		memcpy_s(m_buffer + m_rCur, frontSize, _data, frontSize);
-		memcpy_s(m_buffer, backSize, _data + frontSize, backSize);
+		//memcpy_s(m_buffer + m_rCur, frontSize, _data, frontSize);
+		//memcpy_s(m_buffer, backSize, _data + frontSize, backSize);
+		memcpy(m_buffer + m_rCur, _data, frontSize);
+		memcpy(m_buffer, _data + frontSize, backSize);
 
 		m_rCur = backSize;
 	}
@@ -63,7 +66,8 @@ void LpBuffer::Pop(char* _data, uint32_t _size) {
 	}
 
 	if (_size <= m_maxSize - m_lCur) {
-		memcpy_s(_data, _size, m_buffer + m_lCur, _size);
+		//memcpy_s(_data, _size, m_buffer + m_lCur, _size);
+		memcpy(_data, m_buffer + m_lCur, _size);
 
 		m_lCur += _size;
 	}
@@ -71,8 +75,10 @@ void LpBuffer::Pop(char* _data, uint32_t _size) {
 		uint32_t frontSize = m_maxSize - m_lCur;
 		uint32_t backSize = _size - frontSize;
 
-		memcpy_s(_data, frontSize, m_buffer + m_lCur, frontSize);
-		memcpy_s(_data + frontSize, backSize, m_buffer, backSize);
+		//memcpy_s(_data, frontSize, m_buffer + m_lCur, frontSize);
+		//memcpy_s(_data + frontSize, backSize, m_buffer, backSize);
+		memcpy(_data, m_buffer + m_lCur, frontSize);
+		memcpy(_data + frontSize, m_buffer, backSize);
 
 		m_lCur = backSize;
 	}

@@ -12,6 +12,10 @@ public:
 	LpPool() {
 		m_poolQueue.clear();
 	}
+	LpPool(int _size) {
+		m_allocSize = _size;
+		m_poolQueue.clear();
+	}
 	~LpPool() {
 		T* obj = nullptr;
 		while (m_poolQueue.try_pop(obj)) {
@@ -21,7 +25,15 @@ public:
 	}
 
 	T* Alloc() {
-		T* obj = new T();
+		T* obj = nullptr;
+
+		if (m_allocSize > 0) {
+			obj = new T(m_allocSize);
+		}
+		else {
+			obj = new T();
+		}
+
 		if (obj == nullptr) {
 			return nullptr;
 		}
@@ -51,8 +63,9 @@ public:
 		return m_objectID;
 	}
 
-private:
+protected:
 	concurrent_queue<T*> m_poolQueue;
 	std::atomic<int> m_objectID = 0;
+	int m_allocSize = 0;
 };
 }

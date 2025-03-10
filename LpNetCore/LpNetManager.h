@@ -33,7 +33,7 @@ private:
 	concurrency::concurrent_unordered_map<int, int> m_sessionRecvCountMap;
 
 	int m_threadCount;
-	int m_totalCount = 0;
+	std::atomic<int> m_totalCount = 0;
 
 	std::atomic<bool> m_running;
 	std::mutex m_mutex;

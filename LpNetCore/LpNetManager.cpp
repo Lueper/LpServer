@@ -23,7 +23,7 @@ void LpNetManager::Process() {
 	while (m_running) {
 		NetTask* task = nullptr;
 		if (m_netTaskQueue.try_pop(task) == false) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::microseconds(100));
 			continue;
 		}
 
@@ -43,12 +43,13 @@ void LpNetManager::Process() {
 				m_totalCount += recvCount;
 
 				// 1. 세션별 Count 출력
-				//std::ostringstream msg;
-				//msg << "#LpSession Receive : [ID: " << task->m_session->GetSessionID()
-				//	<< "][Count: " << totalCount
-				//	<< "][Total: " << m_totalCount
-				//	<< "]";
-				//LpLogger::LOG_DEBUG(msg.str());
+				std::ostringstream msg;
+				msg << "#LpSession Receive : [ID: " << task->m_session->GetSessionID()
+					//<< "][Count: " << totalCount
+					<< "][Count: " << recvCount
+					<< "][Total: " << m_totalCount
+					<< "]";
+				LpLogger::LOG_DEBUG(msg.str());
 			}
 			break;
 		}
@@ -71,6 +72,7 @@ concurrency::concurrent_queue<NetTask*>& LpNetManager::GetNetTaskQueue() {
 }
 
 void LpNetManager::AddSessionRecvCount(int _sessionID, int _recvCount, int& _totalCount) {
+	std::lock_guard<std::mutex> lock(m_mutex);
 	auto iter = m_sessionRecvCountMap.find(_sessionID);
 	if (iter == m_sessionRecvCountMap.end()) {
 		m_sessionRecvCountMap.insert(make_pair(_sessionID, _recvCount));

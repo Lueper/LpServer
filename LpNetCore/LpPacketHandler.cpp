@@ -11,30 +11,37 @@ LpPacketHandler::~LpPacketHandler() {
 }
 
 template <typename T>
-char* LpPacketHandler::Serialize(const T* _data, uint32_t _offset) {
+//char* LpPacketHandler::Serialize(const T* _data, uint32_t _offset) {
+char* LpPacketHandler::Serialize(T* _data, uint32_t _offset) {
 	if (_data == nullptr) {
 		return nullptr;
 	}
 
-	char* data = new char[sizeof(T)];
-	memcpy_s(data, sizeof(T), _data + _offset, sizeof(T));
+	//char* data = new char[sizeof(T)];
+	//memcpy_s(data, sizeof(T), _data + _offset, sizeof(T));
 
-	return data;
+	//return data;
+
+	return reinterpret_cast<char*>(_data);
 }
 
 template <typename T>
-T* LpPacketHandler::Deserialize(const char* _data, uint32_t _offset) {
+//T* LpPacketHandler::Deserialize(const char* _data, uint32_t _offset) {
+T* LpPacketHandler::Deserialize(char* _data, uint32_t _offset) {
 	if (_data == nullptr) {
 		return nullptr;
 	}
 
-	T* data = (T*)malloc(sizeof(T));
-	memcpy_s(data, sizeof(T), _data + _offset, sizeof(T));
+	//T* data = (T*)malloc(sizeof(T));
+	//memcpy_s(data, sizeof(T), _data + _offset, sizeof(T));
 
-	return data;
+	//return data;
+
+	return reinterpret_cast<T*>(_data);
 }
 
-void LpPacketHandler::Process(const char* _data, uint32_t _size) {
+//void LpPacketHandler::Process(const char* _data, uint32_t _size) {
+void LpPacketHandler::Process(char* _data, uint32_t _size) {
 	if (_size < sizeof(PacketHeader)) {
 		LpLogger::LOG_ERROR("#LpPacketHandler Packet size is smaller than Header");
 		return;
@@ -47,7 +54,7 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 	}
 
 	if (packetHeader->size < _size || packetHeader->size > _size) {
-		//LpLogger::LOG_ERROR("#LpPacketHandler packet size is different");
+		LpLogger::LOG_ERROR("#LpPacketHandler packet size is different");
 		return;
 	}
 
@@ -92,27 +99,38 @@ void LpPacketHandler::Process(const char* _data, uint32_t _size) {
 
 	//LpDecryptor.Decode(checkSum);
 
-	m_sendCount.fetch_add(1);
+	//m_sendCount.fetch_add(1);
 
-	std::ostringstream msg;
-	msg << "#LpPacketHandler Read : "
-		<< "[type:" << (uint8_t)packetHeader->type << "]"
-		<< "[checkSum:" << packetHeader->checkSum << "]"
-		<< "[size:" << (uint32_t)packetHeader->size << "]"
-		<< "[payload:" << packetPayload << "]"
-		<< "[tail:" << (uint8_t)packetTail->value << "]"
-		<< " count : " << m_sendCount;
+	// 2. 패킷 데이터 출력
+	//std::ostringstream msg;
+	//msg << "#LpPacketHandler Read : "
+	//	<< "[seq: " << (uint32_t)packetHeader->seqNum << "]"
+	//	<< "[type: " << (uint8_t)packetHeader->type << "]"
+	//	<< "[checkSum: " << packetHeader->checkSum << "]"
+	//	<< "[size: " << (uint32_t)packetHeader->size << "]"
+	//	<< "[payload: " << packetPayload << "]"
+	//	<< "[tail: " << (uint8_t)packetTail->value << "]";
+	//LpLogger::LOG_DEBUG(msg.str());
 
-	LpLogger::LOG_DEBUG(msg.str());
-
-	free(packetHeader);
-	free(packetPayload);
-	free(packetTail);
+	//free(packetHeader);
+	//free(packetPayload);
+	//free(packetTail);
 
 	//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }
 
 void LpPacketHandler::ProcessSend(Packet* _packet, uint32_t _size, char** _data) {
 	*_data = Serialize<Packet>(_packet);
+
+	PacketHeader packetHeader = (*_packet).header;
+
+	//std::ostringstream msg;
+	//msg << "#LpPacketHandler Send : "
+	//	<< "[seq: " << (uint32_t)packetHeader.seqNum << "]"
+	//	<< "[type: " << (uint8_t)packetHeader.type << "]"
+	//	<< "[checkSum: " << packetHeader.checkSum << "]"
+	//	<< "[size: " << (uint32_t)packetHeader.size << "]"
+	//	<< "[payload: " << std::string((*_packet).payload) << "]";
+	//LpLogger::LOG_DEBUG(msg.str());
 }
 }

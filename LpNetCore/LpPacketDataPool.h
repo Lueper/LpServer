@@ -5,7 +5,10 @@
 namespace lpnet {
 class LpPacketDataPool : public LpPool<char> {
 public:
-	//char* Alloc();
+	LpPacketDataPool(int _size);
+
+	char* Alloc();
+	char* Pop();
 private:
 };
 }

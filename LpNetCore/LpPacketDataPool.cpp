@@ -20,6 +20,8 @@ char* LpPacketDataPool::Alloc() {
 		return nullptr;
 	}
 
+	memset(obj, 0, m_allocSize);
+
 	return obj;
 }
 

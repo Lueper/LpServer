@@ -3,7 +3,7 @@
 
 namespace lpnet {
 LpNetManager::LpNetManager() {
-	m_threadCount = 16;
+	m_threadCount = 0;
 }
 
 LpNetManager::~LpNetManager() {
@@ -12,6 +12,7 @@ LpNetManager::~LpNetManager() {
 
 void LpNetManager::Run() {
 	m_running = true;
+	//m_threadCount = 1;
 
 	m_threadVector = std::vector<std::thread*>(m_threadCount);
 	for (int i = 0; i < m_threadCount; i++) {
@@ -42,14 +43,16 @@ void LpNetManager::Process() {
 				AddSessionRecvCount(task->m_session->GetSessionID(), recvCount, totalCount);
 				m_totalCount += recvCount;
 
-				// 1. 세션별 Count 출력
-				std::ostringstream msg;
-				msg << "#LpSession Receive : [ID: " << task->m_session->GetSessionID()
-					//<< "][Count: " << totalCount
-					<< "][Count: " << recvCount
-					<< "][Total: " << m_totalCount
-					<< "]";
-				LpLogger::LOG_DEBUG(msg.str());
+			// 1. 세션별 Count 출력
+				if (m_totalCount % 1000 == 0) {
+					std::ostringstream msg;
+					msg << "#LpSession Receive : [ID: " << task->m_session->GetSessionID()
+						<< "][Count: " << totalCount
+						<< "][Total: " << m_totalCount
+						<< "]";
+					LpLogger::LOG_DEBUG(msg.str());
+				}
+				
 			}
 			break;
 		}

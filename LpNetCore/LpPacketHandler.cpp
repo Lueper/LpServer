@@ -41,21 +41,21 @@ T* LpPacketHandler::Deserialize(char* _data, uint32_t _offset) {
 }
 
 //void LpPacketHandler::Process(const char* _data, uint32_t _size) {
-void LpPacketHandler::Process(char* _data, uint32_t _size) {
+bool LpPacketHandler::Process(char* _data, uint32_t _size) {
 	if (_size < sizeof(PacketHeader)) {
 		LpLogger::LOG_ERROR("#LpPacketHandler Packet size is smaller than Header");
-		return;
+		return false;
 	}
 
 	PacketHeader* packetHeader = Deserialize<PacketHeader>(_data);
 	if (packetHeader == nullptr) {
 		LpLogger::LOG_ERROR("#LpPacketHandler packetHeader nullptr");
-		return;
+		return false;
 	}
 
 	if (packetHeader->size < _size || packetHeader->size > _size) {
 		LpLogger::LOG_ERROR("#LpPacketHandler packet size is different");
-		return;
+		return false;
 	}
 
 	switch (packetHeader->type) {
@@ -73,19 +73,19 @@ void LpPacketHandler::Process(char* _data, uint32_t _size) {
 			break;
 		default:
 			LpLogger::LOG_ERROR("#LpPacketHandler packet type is not allowed");
-			return;
+			return false;
 	}
 
 	char* packetPayload = reinterpret_cast<char*>(Deserialize<char[128]>(_data + sizeof(PacketHeader)));
 	if (packetPayload == nullptr) {
 		LpLogger::LOG_ERROR("#LpPacketHandler packetPayload nullptr");
-		return;
+		return false;
 	}
 
 	PacketTail* packetTail = Deserialize<PacketTail>(_data + sizeof(PacketHeader) + sizeof(char[128]));
 	if (packetTail == nullptr) {
 		LpLogger::LOG_ERROR("#LpPacketHandler packetTail nullptr");
-		return;
+		return false;
 	}
 
 	switch (packetTail->value) {
@@ -94,22 +94,16 @@ void LpPacketHandler::Process(char* _data, uint32_t _size) {
 			break;
 		default:
 			LpLogger::LOG_ERROR("#LpPacketHandler packet tail is not allowed");
-			return;
+			return false;
 	}
 
 	//LpDecryptor.Decode(checkSum);
-
-	//m_sendCount.fetch_add(1);
 
 	// 2. 패킷 데이터 출력
 	//std::ostringstream msg;
 	//msg << "#LpPacketHandler Read : "
 	//	<< "[seq: " << (uint32_t)packetHeader->seqNum << "]"
-	//	<< "[type: " << (uint8_t)packetHeader->type << "]"
-	//	<< "[checkSum: " << packetHeader->checkSum << "]"
-	//	<< "[size: " << (uint32_t)packetHeader->size << "]"
-	//	<< "[payload: " << packetPayload << "]"
-	//	<< "[tail: " << (uint8_t)packetTail->value << "]";
+	//	<< "[payload: " << packetPayload << "]";
 	//LpLogger::LOG_DEBUG(msg.str());
 
 	//free(packetHeader);
@@ -117,6 +111,82 @@ void LpPacketHandler::Process(char* _data, uint32_t _size) {
 	//free(packetTail);
 
 	//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	return true;
+}
+
+bool LpPacketHandler::Process(int _sessionID, char* _data, uint32_t _size) {
+	if (_size < sizeof(PacketHeader)) {
+		LpLogger::LOG_ERROR("#LpPacketHandler Packet size is smaller than Header");
+		return false;
+	}
+
+	PacketHeader* packetHeader = Deserialize<PacketHeader>(_data);
+	if (packetHeader == nullptr) {
+		LpLogger::LOG_ERROR("#LpPacketHandler packetHeader nullptr");
+		return false;
+	}
+
+	if (packetHeader->size < _size || packetHeader->size > _size) {
+		LpLogger::LOG_ERROR("#LpPacketHandler packet size is different");
+		return false;
+	}
+
+	switch (packetHeader->type) {
+	case 100:
+		// 100 승인
+		break;
+	case 101:
+		// 김지혁
+		break;
+	case 102:
+		// 유영준
+		break;
+	case 103:
+		// 정은성
+		break;
+	default:
+		LpLogger::LOG_ERROR("#LpPacketHandler packet type is not allowed");
+		return false;
+	}
+
+	char* packetPayload = reinterpret_cast<char*>(Deserialize<char[128]>(_data + sizeof(PacketHeader)));
+	if (packetPayload == nullptr) {
+		LpLogger::LOG_ERROR("#LpPacketHandler packetPayload nullptr");
+		return false;
+	}
+
+	PacketTail* packetTail = Deserialize<PacketTail>(_data + sizeof(PacketHeader) + sizeof(char[128]));
+	if (packetTail == nullptr) {
+		LpLogger::LOG_ERROR("#LpPacketHandler packetTail nullptr");
+		return false;
+	}
+
+	switch (packetTail->value) {
+	case 255:
+		// 255 만 승인
+		break;
+	default:
+		LpLogger::LOG_ERROR("#LpPacketHandler packet tail is not allowed");
+		return false;
+	}
+
+	//LpDecryptor.Decode(checkSum);
+
+	// 2. 패킷 데이터 출력
+	//std::ostringstream msg;
+	//msg << "#LpPacketHandler Read [ID: " << _sessionID << "]"
+	//	<< "[seq: " << (uint32_t)packetHeader->seqNum << "]"
+	//	<< "[payload: " << packetPayload << "]";
+	//LpLogger::LOG_DEBUG(msg.str());
+
+	//free(packetHeader);
+	//free(packetPayload);
+	//free(packetTail);
+
+	//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	return true;
 }
 
 void LpPacketHandler::ProcessSend(Packet* _packet, uint32_t _size, char** _data) {
@@ -124,13 +194,13 @@ void LpPacketHandler::ProcessSend(Packet* _packet, uint32_t _size, char** _data)
 
 	PacketHeader packetHeader = (*_packet).header;
 
-	//std::ostringstream msg;
-	//msg << "#LpPacketHandler Send : "
-	//	<< "[seq: " << (uint32_t)packetHeader.seqNum << "]"
-	//	<< "[type: " << (uint8_t)packetHeader.type << "]"
-	//	<< "[checkSum: " << packetHeader.checkSum << "]"
-	//	<< "[size: " << (uint32_t)packetHeader.size << "]"
-	//	<< "[payload: " << std::string((*_packet).payload) << "]";
-	//LpLogger::LOG_DEBUG(msg.str());
+	std::ostringstream msg;
+	msg << "#LpPacketHandler Send : "
+		<< "[seq: " << (uint32_t)packetHeader.seqNum << "]"
+		<< "[type: " << (uint8_t)packetHeader.type << "]"
+		<< "[checkSum: " << packetHeader.checkSum << "]"
+		<< "[size: " << (uint32_t)packetHeader.size << "]"
+		<< "[payload: " << std::string((*_packet).payload) << "]";
+	LpLogger::LOG_DEBUG(msg.str());
 }
 }

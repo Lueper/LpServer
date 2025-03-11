@@ -21,9 +21,9 @@ public:
 	LpServer(const std::string _ip, uint16_t _port);
 	~LpServer();
 
-	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; }
-	void SetIOBufferSize(uint32_t _ioBufferSize) { m_ioBufferSize = _ioBufferSize; }
-	void SetSessionPoolSize(uint32_t _sessionPoolSize) { m_sessionPoolSize = _sessionPoolSize; }
+	void SetThreadCount(int _threadCount) { m_threadCount = _threadCount; }
+	void SetIOBufferSize(int _ioBufferSize) { m_ioBufferSize = _ioBufferSize; }
+	void SetSessionPoolSize(int _sessionPoolSize) { m_sessionPoolSize = _sessionPoolSize; }
 
 	void LoadFile(std::string _filePath);
 	bool ProcessCommand();
@@ -37,10 +37,9 @@ public:
 	void ProcessNetTask(int _index);
 
 private:
-	uint32_t m_threadCount = 0;
-	int m_ioThreadCount = 4;
-	uint32_t m_ioBufferSize = 0;
-	uint32_t m_sessionPoolSize = 0;
+	int m_threadCount = 0;
+	int m_ioBufferSize = 0;
+	int m_sessionPoolSize = 0;
 
 	std::atomic<bool> m_running;
 

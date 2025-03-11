@@ -20,7 +20,7 @@ void LpAcceptor::Init() {
 	m_running = true;
 
 	// Session Pool »ý¼º
-	for (uint32_t i = 0; i < SESSION_POOL_SIZE; i++) {
+	for (int i = 0; i < SESSION_POOL_SIZE; i++) {
 		LpSession* session = m_sessionPool->Alloc();
 		m_sessionPool->Push(session);
 	}

@@ -45,9 +45,9 @@ public:
 	void CheckSessions();
 	
 	void SetIOBufferSize(uint32_t _ioBufferSize) { m_ioBufferSize = _ioBufferSize; };
-	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; };
-	void SetSessionCount(uint32_t _sessionCount) { m_sessionCount = _sessionCount; };
-	void SetSessionPoolSize(uint32_t _size) { m_sessionPoolSize = _size; };
+	void SetThreadCount(int _threadCount) { m_threadCount = _threadCount; };
+	void SetSessionCount(int _sessionCount) { m_sessionCount = _sessionCount; };
+	void SetSessionPoolSize(int _size) { m_sessionPoolSize = _size; };
 	
 	void SetSessionSendCount(int _count) { m_sessionSendCount = _count; };
 
@@ -70,9 +70,9 @@ private:
 	std::unordered_map<int, LpSession*> m_sessionMap;
 
 	uint32_t m_ioBufferSize;
-	uint32_t m_threadCount;
-	uint32_t m_sessionCount;
-	uint32_t m_sessionPoolSize;
+	int m_threadCount;
+	int m_sessionCount;
+	int m_sessionPoolSize;
 
 	uint32_t m_connectTryCount = 0;
 	uint32_t m_sequenceNumber = 0;

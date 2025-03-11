@@ -21,7 +21,7 @@ public:
 
 	void SetIOBufferMaxSize(uint32_t _size) { BUFFER_MAX_SIZE = _size; };
 	uint32_t GetIOBufferMaxSize() { return BUFFER_MAX_SIZE;	};
-	void SetSessionPoolSize(uint32_t _size) { SESSION_POOL_SIZE = _size; };
+	void SetSessionPoolSize(int _size) { SESSION_POOL_SIZE = _size; };
 
 	std::unordered_map<int, LpSession*> GetSessions() { return m_sessionMap; };
 
@@ -38,6 +38,6 @@ private:
 	//std::unordered_map<int, LpSession*> m_sessionMap;
 
 	uint32_t BUFFER_MAX_SIZE = 65536;
-	uint32_t SESSION_POOL_SIZE = 1000;
+	int SESSION_POOL_SIZE = 1000;
 };
 }

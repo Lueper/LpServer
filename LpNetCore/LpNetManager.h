@@ -24,6 +24,7 @@ public:
 	void Process();
 	void Stop();
 
+	void SetThreadConunt(int _count) { m_threadCount = _count; };
 	concurrency::concurrent_queue<NetTask*>& GetNetTaskQueue();
 private:
 	void AddSessionRecvCount(int _sessionID, int _recvCount, int& _totalCount);

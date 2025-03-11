@@ -32,7 +32,7 @@ void LpClient::Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioB
 	SetSessionSendCount(_sessionSendCount);
 
 	// Session Pool 생성
-	for (uint32_t i = 0; i < m_sessionPoolSize; i++) {
+	for (int i = 0; i < m_sessionPoolSize; i++) {
 		LpSession* session = m_sessionPool->Alloc();
 		m_sessionPool->Push(session);
 	}
@@ -52,7 +52,7 @@ void LpClient::Run() {
 void LpClient::Connect(const std::string _ip, uint16_t _port) {
 	m_endPoint = new asio::ip::tcp::endpoint(asio::ip::address::from_string(_ip), _port);
 
-	for (uint32_t i = 0; i < m_sessionCount; i++) {
+	for (int i = 0; i < m_sessionCount; i++) {
 		//lpnet::LpSession* session = new lpnet::LpSession(m_acceptor->GetIOContext(), m_ioBufferSize);
 		lpnet::LpSession* session = m_sessionPool->Pop();
 
@@ -224,7 +224,7 @@ void LpClient::TestSend() {
 			packet.header.seqNum++;
 			//LpClientManager::Instance()->AddSendCount();
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			//std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}
 

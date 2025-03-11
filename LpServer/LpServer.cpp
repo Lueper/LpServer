@@ -25,9 +25,9 @@ void LpServer::LoadFile(std::string _filePath) {
 #else
 		YAML::Node config = YAML::LoadFile(_filePath)["Server"]["Release"];
 #endif
-		SetThreadCount(config["ThreadCount"].as<uint32_t>());
-		SetIOBufferSize(config["IOBufferSize"].as<uint32_t>());
-		SetSessionPoolSize(config["SessionPoolSize"].as<uint32_t>());
+		SetThreadCount(config["ThreadCount"].as<int>());
+		SetIOBufferSize(config["IOBufferSize"].as<int>());
+		SetSessionPoolSize(config["SessionPoolSize"].as<int>());
 
 		lpnet::LpLogger::LOG_INFO("#YAML Load Config file is Success");
     }
@@ -55,6 +55,8 @@ bool LpServer::ProcessCommand() {
 void LpServer::Init() {
 	m_acceptor->SetIOBufferMaxSize(m_ioBufferSize);
 	m_acceptor->SetSessionPoolSize(m_sessionPoolSize);
+
+	m_netManager->SetThreadConunt(m_threadCount);
 	m_acceptor->SetNetManager(m_netManager);
 
 	m_acceptor->Init();
@@ -77,10 +79,10 @@ void LpServer::Start() {
 void LpServer::Run() {
 	m_running = true;
 	
-	m_threadCount = std::thread::hardware_concurrency() / 2;
+	//m_threadCount = std::thread::hardware_concurrency() / 2;
 
 	// asio 이벤트 대기
-	for (uint32_t i = 0; i < m_threadCount; i++) {
+	for (int i = 0; i < m_threadCount; i++) {
 		std::thread* thread = new std::thread([this] {
 			m_acceptor->Run();
 		});

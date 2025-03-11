@@ -37,11 +37,11 @@ public:
 
 	void LoadFile(std::string _filePath);
 	void SetIOBufferSize(uint32_t _ioBufferSize) { m_ioBufferSize = _ioBufferSize; }
-	void SetThreadCount(uint32_t _threadCount) { m_threadCount = _threadCount; }
-	void SetSessionCount(uint32_t _sessionCount) { m_sessionCount = _sessionCount; }
-	void SetSessionPoolSize(uint32_t _sessionPoolSize) { m_sessionPoolSize = _sessionPoolSize; };
-	void SetClientReconnectCount(uint32_t _count) { m_clientReconnectCount = _count; };
-	void SetSessionSendCount(uint32_t _count) { m_sessionSendCount = _count; };
+	void SetThreadCount(int _threadCount) { m_threadCount = _threadCount; }
+	void SetSessionCount(int _sessionCount) { m_sessionCount = _sessionCount; }
+	void SetSessionPoolSize(int _sessionPoolSize) { m_sessionPoolSize = _sessionPoolSize; };
+	void SetClientReconnectCount(int _count) { m_clientReconnectCount = _count; };
+	void SetSessionSendCount(int _count) { m_sessionSendCount = _count; };
 	void ClientMain();
 
 	void SetServerCount(uint32_t _serverCount) { m_serverCount = _serverCount; }
@@ -56,9 +56,9 @@ public:
 
 private:
 	uint32_t m_ioBufferSize;
-	uint32_t m_threadCount;
-	uint32_t m_sessionCount;
-	uint32_t m_sessionPoolSize;
+	int m_threadCount;
+	int m_sessionCount;
+	int m_sessionPoolSize;
 
 	int m_clientReconnectCount;
 	int m_sessionSendCount;

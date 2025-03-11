@@ -56,9 +56,9 @@ void LpClientConsole::LoadFile(std::string _filePath) {
 		YAML::Node config = YAML::LoadFile(_filePath)["Client"]["Release"];
 #endif
 		SetIOBufferSize(config["IOBufferSize"].as<uint32_t>());
-		SetThreadCount(config["ThreadCount"].as<uint32_t>());
-		SetSessionCount(config["SessionCount"].as<uint32_t>());
-		SetSessionPoolSize(config["SessionPoolSize"].as<uint32_t>());
+		SetThreadCount(config["ThreadCount"].as<int>());
+		SetSessionCount(config["SessionCount"].as<int>());
+		SetSessionPoolSize(config["SessionPoolSize"].as<int>());
 
 		SetClientReconnectCount(config["ClientReconnectCount"].as<int>());
 		SetSessionSendCount(config["SessionSendCount"].as<int>());
@@ -85,7 +85,7 @@ void LpClientConsole::LoadFile(std::string _filePath) {
 }
 
 void LpClientConsole::ClientMain() {
-	for (uint32_t i = 0; i < m_threadCount; i++) {
+	for (int i = 0; i < m_threadCount; i++) {
 		std::thread* clientThread = new std::thread([&] {
 			std::lock_guard<std::mutex> lock(m_mutex);
 			LpClient* lpClient = new LpClient();

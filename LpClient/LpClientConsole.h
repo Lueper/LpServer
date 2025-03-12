@@ -32,7 +32,6 @@ public:
 	LpClientConsole();
 	~LpClientConsole();
 
-	void InitCommand();
 	bool ProcessCommand();
 
 	void LoadFile(std::string _filePath);
@@ -42,7 +41,6 @@ public:
 	void SetSessionPoolSize(int _sessionPoolSize) { m_sessionPoolSize = _sessionPoolSize; };
 	void SetClientReconnectCount(int _count) { m_clientReconnectCount = _count; };
 	void SetSessionSendCount(int _count) { m_sessionSendCount = _count; };
-	void ClientMain();
 
 	void SetServerCount(uint32_t _serverCount) { m_serverCount = _serverCount; }
 	void SetSendIndex(uint32_t _sendIndex) { m_sendIndex = _sendIndex; }
@@ -72,10 +70,6 @@ private:
 	std::pair<std::string, uint16_t> m_connectServer;
 
 	std::mutex m_mutex;
-
-
-
-
 
 	std::atomic<bool> m_running;
 	std::vector<LpClient*> m_clientVector;

@@ -39,21 +39,16 @@ void LpClient::Init(uint32_t _threadCount, uint32_t _sessionCount, uint32_t _ioB
 }
 
 void LpClient::Run() {
-	m_threadCount = std::thread::hardware_concurrency() / 2;
-
-	for (int i = 0; i < m_threadCount; i++) {
-		std::thread* thread = new std::thread([this] {
-			m_acceptor->Run();
-		});
-		m_asioThreadVector.push_back(thread);
-	}
+	std::thread* thread = new std::thread([this] {
+		m_acceptor->Run();
+	});
+	m_asioThreadVector.push_back(thread);
 }
 
 void LpClient::Connect(const std::string _ip, uint16_t _port) {
 	m_endPoint = new asio::ip::tcp::endpoint(asio::ip::address::from_string(_ip), _port);
 
 	for (int i = 0; i < m_sessionCount; i++) {
-		//lpnet::LpSession* session = new lpnet::LpSession(m_acceptor->GetIOContext(), m_ioBufferSize);
 		lpnet::LpSession* session = m_sessionPool->Pop();
 
 		session->GetSocket()->async_connect(*m_endPoint
@@ -69,8 +64,7 @@ void LpClient::OnConnect(lpnet::LpSession* _session, const system::error_code& _
 	if (_error) {
 		if (m_connectTryCount >= 10) {
 			lpnet::LpLogger::LOG_ERROR("#LpSession OnConnect Fail : Connection TryCount Exceeded");
-			//m_sessionPool->Push(_session);
-			//_session = m_sessionPool->Alloc();
+
 			m_connectTryCount = 0;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -92,8 +86,6 @@ void LpClient::OnConnect(lpnet::LpSession* _session, const system::error_code& _
 	}
 
 	_session->SetState(SessionState::Connected);
-
-	//TestSend();
 }
 
 void LpClient::Send(Packet* _packet, uint32_t _size) {
@@ -147,7 +139,6 @@ void LpClient::CloseSessions() {
 
 	while (!isAllClosed) {
 		int closeCount = 0;
-		//for (auto session = m_sessionMap.begin(); session != m_sessionMap.end(); session++) {
 		for (auto& session : m_sessionMap) {
 			if (session.second->GetState() == SessionState::Closed) {
 				session.second->Close();
@@ -195,7 +186,6 @@ void LpClient::TestSend() {
 		packet.header.size = sizeof(Packet);
 
 		memset(packet.payload, 0, sizeof(packet.payload));
-		//std::string str = std::string("qwerasdfjeisljfsefsfzefirkdilslsdasdasdasekd,ckdiildeir");
 		//std::string str = to_string(LpClientManager::Instance()->GetTotalCount() + 1);
 		std::string str = std::string("asdfasdfasdfasdfsadfasddfcasdf");
 		str.copy(packet.payload, 128);
@@ -210,8 +200,8 @@ void LpClient::TestSend() {
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<int> dist(1, 10);
 		//int randomNumber = dist(gen);
-		int randomNumber = m_sessionSendCount;
 		//int randomNumber = 10;
+		int randomNumber = m_sessionSendCount;
 		
 		session->SetSendCnt(randomNumber);
 
@@ -222,13 +212,10 @@ void LpClient::TestSend() {
 
 			m_sendCount++;
 			packet.header.seqNum++;
-			//LpClientManager::Instance()->AddSendCount();
 
 			//std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}
-
-	//CloseSessions();
 
 	//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }

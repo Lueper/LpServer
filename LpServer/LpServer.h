@@ -13,8 +13,6 @@
 #include "LpNetCore.h"
 #include "LpUtility.h"
 
-using namespace boost;
-
 class LpServer {
 public:
 	LpServer();
@@ -34,6 +32,7 @@ public:
 	void Stop();
 	void Release();
 
+	void ProcessServer();
 	void ProcessNetTask(int _index);
 
 private:
@@ -47,4 +46,5 @@ private:
 	lpnet::LpNetManager* m_netManager = nullptr;
 	std::vector<std::thread*> m_asioThreadVector;
 	std::vector<std::thread*> m_ioThreadVector;
+	std::thread m_mainThread;
 };

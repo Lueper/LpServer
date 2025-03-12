@@ -36,7 +36,7 @@ namespace lpnet {
 #define LOG_ERROR(_msg)	LOG(ELogType::error, _msg)
 #define LOG_FATAL(_msg)	LOG(ELogType::fatal, _msg)
 
-class LpLogger : LpSingleton<LpLogger> {
+class LpLogger : public LpSingleton<LpLogger> {
 public:
 	LpLogger();
 
@@ -44,6 +44,8 @@ public:
 	static void LOG(ELogType _logType, const std::string& _msg);
 
 	static std::mutex m_mutex;
+
+	static void Update();
 private:
 	static void Print(ELogType _logType, const std::string& _os);
 

@@ -59,6 +59,10 @@ void LpLogger::LOG(ELogType _logType, const std::string& _msg) {
 	Print(_logType, os.str());
 }
 
+void LpLogger::Update() {
+
+}
+
 void LpLogger::Print(ELogType _logType, const std::string& _os) {
 	std::lock_guard<std::mutex> lock(m_mutex);
 

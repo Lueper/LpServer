@@ -89,6 +89,9 @@ void LpServer::Run() {
 		m_asioThreadVector.push_back(thread);
 	}
 
+	// Main 스레드
+	m_mainThread = std::thread(std::bind(&LpServer::ProcessServer, this));
+
 	// I/O Queue 데이터 처리
 	//for (int i = 0; i < m_ioThreadCount; i++) {
 	//for (int i = 0; i < m_threadCount; i++) {
@@ -111,6 +114,9 @@ void LpServer::Stop() {
 		delete thread;
 	}
 	m_asioThreadVector.clear();
+
+	if (m_mainThread.joinable())
+		m_mainThread.join();
 }
 
 void LpServer::Release() {
@@ -118,6 +124,12 @@ void LpServer::Release() {
 	m_acceptor = nullptr;
 	delete m_netManager;
 	m_netManager = nullptr;
+}
+
+void LpServer::ProcessServer() {
+	while (m_running) {
+		lpnet::LpLogger::Update();
+	}
 }
 
 void LpServer::ProcessNetTask(int _index) {

@@ -3,6 +3,7 @@
 
 namespace lpnet {
 std::mutex LpLogger::m_mutex;
+concurrent_queue<std::pair<ELogType, std::string>> LpLogger::m_logQueue;
 
 void LpLogger::LOG(ELogType _logType, const wchar_t* _msg) {
 	std::wstring ws(_msg);
@@ -56,19 +57,27 @@ void LpLogger::LOG(ELogType _logType, const std::string& _msg) {
 
 	os << _msg << "\n";
 
-	Print(_logType, os.str());
+	PushLog(_logType, os.str());
 }
 
 void LpLogger::Update() {
+	std::pair<ELogType, std::string> log;
 
+	m_logQueue.try_pop(log);
+
+	Print(log.first, log.second);
 }
 
-void LpLogger::Print(ELogType _logType, const std::string& _os) {
+void LpLogger::PushLog(ELogType _logType, const std::string& _str) {
+	m_logQueue.push(std::make_pair(_logType, _str));
+}
+
+void LpLogger::Print(ELogType _logType, const std::string& _str) {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
 	SetColor(_logType);
-	std::cout << _os;
-	//WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), _os.c_str(), static_cast<DWORD>(_os.size()), NULL, NULL);
+	//std::cout << _str;
+	WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), _str.c_str(), static_cast<DWORD>(_str.size()), NULL, NULL);
 	ResetColor();
 }
 

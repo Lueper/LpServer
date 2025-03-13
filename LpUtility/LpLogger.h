@@ -9,6 +9,8 @@
 #include <iomanip>
 #include <thread>
 #include <mutex>
+#include <concurrent_queue.h>
+#include <queue>
 
 #include "LpUtility.h"
 #include "LpSingleton.h"
@@ -30,6 +32,7 @@ const std::string LOG_DESC[]{
 };
 
 namespace lpnet {
+	using namespace Concurrency;
 #define LOG_DEBUG(_msg)	LOG(ELogType::debug, _msg)
 #define LOG_INFO(_msg)	LOG(ELogType::info, _msg)
 #define LOG_WARN(_msg)	LOG(ELogType::warn, _msg)
@@ -43,13 +46,15 @@ public:
 	static void LOG(ELogType _logType, const wchar_t* _msg);
 	static void LOG(ELogType _logType, const std::string& _msg);
 
-	static std::mutex m_mutex;
-
 	static void Update();
 private:
-	static void Print(ELogType _logType, const std::string& _os);
+	static void PushLog(ELogType _logType, const std::string& _str);
+	static void Print(ELogType _logType, const std::string& _str);
 
 	static void SetColor(ELogType _logType);
 	static void ResetColor();
+
+	static concurrent_queue<std::pair<ELogType, std::string>> m_logQueue;
+	static std::mutex m_mutex;
 };
 }

@@ -113,20 +113,9 @@ void LpClientConsole::ProcessClient(int index) {
 }
 
 void LpClientConsole::ProcessLog() {
-	//uint32_t prevCount = 0;
-	//uint32_t currCount = 0;
-
-	//while (m_running) {
-	//	currCount = LpClientManager::Instance()->GetTotalCount();
-	//	if (prevCount != currCount) {
-	//		std::ostringstream msg;
-	//		msg << "#LpClientConsole Total [Cnt: " << currCount << "]";
-	//		LpLogger::LOG_INFO(msg.str());
-	//		prevCount = currCount;
-	//	}
-
-	//	LpClientManager::Instance()->AddTotalCount();
-	//}
+	while (m_running) {
+		lpnet::LpLogger::Update();
+	}
 }
 
 void LpClientConsole::Run() {
@@ -149,7 +138,7 @@ void LpClientConsole::Run() {
 		m_clientWorkVector[i] = std::thread(&LpClientConsole::ProcessClient, this, i);
 	}
 
-	//std::thread* logThread = new std::thread(&LpClientConsole::ProcessLog, this);
+	std::thread* logThread = new std::thread(&LpClientConsole::ProcessLog, this);
 }
 
 void LpClientConsole::Stop() {

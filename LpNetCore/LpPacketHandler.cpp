@@ -128,7 +128,7 @@ bool LpPacketHandler::Process(int _sessionID, char* _data, uint32_t _size) {
 	}
 
 	if (packetHeader->size < _size || packetHeader->size > _size) {
-		LpLogger::LOG_ERROR("#LpPacketHandler packet size is different");
+		//LpLogger::LOG_ERROR("#LpPacketHandler packet size is different");
 		return false;
 	}
 
@@ -202,5 +202,13 @@ void LpPacketHandler::ProcessSend(Packet* _packet, uint32_t _size, char** _data)
 		<< "[size: " << (uint32_t)packetHeader.size << "]"
 		<< "[payload: " << std::string((*_packet).payload) << "]";
 	LpLogger::LOG_DEBUG(msg.str());
+}
+
+int LpPacketHandler::PushPacket(int _sessionID, char* _data, uint32_t _size) {
+	if (_data == nullptr) {
+		LpLogger::LOG_ERROR("#LpPacketHandler PacketData is null");
+	}
+
+	// TODO: 패킷을 Queue에 푸시
 }
 }

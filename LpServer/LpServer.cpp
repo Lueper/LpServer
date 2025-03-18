@@ -26,6 +26,7 @@ void LpServer::LoadFile(std::string _filePath) {
 		YAML::Node config = YAML::LoadFile(_filePath)["Server"]["Release"];
 #endif
 		SetThreadCount(config["ThreadCount"].as<int>());
+		SetIOThreadCount(config["IOThreadCount"].as<int>());
 		SetIOBufferSize(config["IOBufferSize"].as<int>());
 		SetSessionPoolSize(config["SessionPoolSize"].as<int>());
 
@@ -53,13 +54,18 @@ bool LpServer::ProcessCommand() {
 }
 
 void LpServer::Init() {
+	m_netManager->SetThreadConunt(m_threadCount);
+	m_netManager->SetIOThreadConunt(m_ioThreadCount);
+
 	m_acceptor->SetIOBufferMaxSize(m_ioBufferSize);
 	m_acceptor->SetSessionPoolSize(m_sessionPoolSize);
-
-	m_netManager->SetThreadConunt(m_threadCount);
+	m_acceptor->SetIOThreadConunt(m_ioThreadCount);
 	m_acceptor->SetNetManager(m_netManager);
 
 	m_acceptor->Init();
+
+	lpnet::LpPacketHandler::Instance()->SetIOThreadCount(m_ioThreadCount);
+	lpnet::LpPacketHandler::Instance()->Init();
 }
 
 void LpServer::Start() {
@@ -73,6 +79,7 @@ void LpServer::Start() {
 	Run();
 
 	// NetTask 처리 시작
+	m_netManager->SetAcceptor(m_acceptor);
 	m_netManager->Run();
 }
 
@@ -88,6 +95,14 @@ void LpServer::Run() {
 		});
 		m_asioThreadVector.push_back(thread);
 	}
+
+	// Handler 스레드
+	for (int i = 0; i < m_ioThreadCount; i++) {
+		m_handlerThread.push_back(std::thread(std::bind(&LpServer::ProcessHandler, this, i)));
+	}
+
+	// Log 스레드
+	m_logThread = std::thread(std::bind(&LpServer::ProcessLog, this));
 
 	// Main 스레드
 	m_mainThread = std::thread(std::bind(&LpServer::ProcessServer, this));
@@ -115,8 +130,20 @@ void LpServer::Stop() {
 	}
 	m_asioThreadVector.clear();
 
-	if (m_mainThread.joinable())
+	for (auto& thread : m_handlerThread)
+	{
+		if (thread.joinable())
+			thread.join();
+	}
+	m_handlerThread.clear();
+
+	if (m_logThread.joinable()) {
+		m_logThread.join();
+	}
+
+	if (m_mainThread.joinable()) {
 		m_mainThread.join();
+	}
 }
 
 void LpServer::Release() {
@@ -126,36 +153,21 @@ void LpServer::Release() {
 	m_netManager = nullptr;
 }
 
-void LpServer::ProcessServer() {
+void LpServer::ProcessHandler(int _index) {
+	while (m_running) {
+		lpnet::LpPacketHandler::Instance()->Update(_index);
+	}
+}
+
+void LpServer::ProcessLog() {
 	while (m_running) {
 		lpnet::LpLogger::Update();
 	}
 }
 
-void LpServer::ProcessNetTask(int _index) {
+void LpServer::ProcessServer() {
 	//while (m_running) {
-	//	int _size = sizeof(Packet);
-
-	//	if (m_acceptor->GetSessions().empty() == true) {
-	//		continue;
-	//	}
-
-	//	for (auto& session : m_acceptor->GetSessions()) {
-	//		// TODO: 세션이 닫힌 상태면 지워줘야 함
-	//		//if ((*session.second).GetState() == lpnet::SessionState::Closed) {
-	//		//	m_acceptor->m_sessionMap.erase((*session.second).GetSessionID());
-	//		//	continue;
-	//		//}
-
-	//		if ((*session.second).GetReadBuffer()->GetUseSize() > 0) {
-	//			char* data = new char[_size];
-	//			(*session.second).GetReadBuffer()->Pop(data, _size);
-	//			lpnet::LpPacketHandler::Instance()->Process(data, _size);
-	//			delete[] data;
-	//		}
-	//	}
-
-	//	m_netManager->Pop();
-	//	LpNetManager::Instance()->Pop();
+	//	lpnet::LpLogger::Update();
+	//	lpnet::LpPacketHandler::Instance()->Update();
 	//}
 }

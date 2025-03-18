@@ -20,6 +20,7 @@ public:
 	~LpServer();
 
 	void SetThreadCount(int _threadCount) { m_threadCount = _threadCount; }
+	void SetIOThreadCount(int _ioThreadCount) { m_ioThreadCount = _ioThreadCount; }
 	void SetIOBufferSize(int _ioBufferSize) { m_ioBufferSize = _ioBufferSize; }
 	void SetSessionPoolSize(int _sessionPoolSize) { m_sessionPoolSize = _sessionPoolSize; }
 
@@ -32,11 +33,13 @@ public:
 	void Stop();
 	void Release();
 
+	void ProcessHandler(int _index);
+	void ProcessLog();
 	void ProcessServer();
-	void ProcessNetTask(int _index);
 
 private:
 	int m_threadCount = 0;
+	int m_ioThreadCount = 0;
 	int m_ioBufferSize = 0;
 	int m_sessionPoolSize = 0;
 
@@ -46,5 +49,8 @@ private:
 	lpnet::LpNetManager* m_netManager = nullptr;
 	std::vector<std::thread*> m_asioThreadVector;
 	std::vector<std::thread*> m_ioThreadVector;
+
+	std::vector<std::thread> m_handlerThread;
+	std::thread m_logThread;
 	std::thread m_mainThread;
 };

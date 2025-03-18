@@ -9,6 +9,7 @@ public:
 
 	char* Alloc();
 	char* Pop();
+	void Push(char* _obj);
 private:
 };
 }

@@ -34,4 +34,12 @@ char* LpPacketDataPool::Pop() {
 
 	return obj;
 }
+
+void LpPacketDataPool::Push(char* _obj) {
+	if (_obj == nullptr) {
+		_obj = Alloc();
+	}
+
+	m_poolQueue.push(_obj);
+}
 }

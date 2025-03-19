@@ -23,8 +23,8 @@ LpSession::LpSession(asio::io_context* _ioContext) : m_ioBufferSize(65536) {
 	m_netManager = new LpNetManager();
 
 	// PacketData char 사이즈는 1024
-	m_packetDataPool = new LpPacketDataPool(1024);
-	for (int i = 0; i < 100; i++) {
+	m_packetDataPool = new LpPacketDataPool(16384);
+	for (int i = 0; i < 10; i++) {
 		char* packetData = m_packetDataPool->Alloc();
 		m_packetDataPool->Push(packetData);
 	}
@@ -90,6 +90,8 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 		}
 
 		SetState(SessionState::Closed);
+
+		//m_netManager->GetNetTaskQueue(m_threadIndex).push(new NetTask(NetTaskType::Close, this));
 		
 		Close();
 	
@@ -99,7 +101,7 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 	m_readBuffer->Push(m_recvBuffer, _size);
 
 	//NetTask* netTask = new NetTask(NetTaskType::Receive, this);
-	m_netManager->GetNetTaskQueue().push(new NetTask(NetTaskType::Receive, this));
+	m_netManager->GetNetTaskQueue(m_threadIndex).push(new NetTask(NetTaskType::Receive, this));
 
 	//m_readBuffer->Push(m_recvBuffer, _size);
 
@@ -128,19 +130,20 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 	Read();
 }
 
-void LpSession::ProcessReceive() {
-	int size = sizeof(Packet);
-	int recvCount = 0;
-
-	while (GetReadBuffer()->GetUseSize() > size) {
-		GetReadBuffer()->Pop(m_recvData, size);
-		if (lpnet::LpPacketHandler::Instance()->Process(m_recvData, size) == true) {
-			recvCount++;
-		}
-	}
-}
+//void LpSession::ProcessReceive() {
+//	int size = sizeof(Packet);
+//	int recvCount = 0;
+//
+//	while (GetReadBuffer()->GetUseSize() > size) {
+//		GetReadBuffer()->Pop(m_recvData, size);
+//		if (lpnet::LpPacketHandler::Instance()->Process(m_recvData, size) == true) {
+//			recvCount++;
+//		}
+//	}
+//}
 
 void LpSession::ProcessReceive(int& _recvCount) {
+	std::lock_guard<std::mutex> lock(m_mutex);
 
 	// Packet 사이즈만큼 처리
 	//int size = sizeof(Packet);
@@ -162,10 +165,13 @@ void LpSession::ProcessReceive(int& _recvCount) {
 	int size = m_readBuffer->GetUseSize();
 
 	char* data = m_packetDataPool->Pop();
+	// ERROR: size가 data의 size를 넘어가버리면 크래시
 	m_readBuffer->Pop(data, size);
 
+	//LpScopedTimer::Instance()->BeginScope();
 	//_recvCount = lpnet::LpPacketHandler::Instance()->Process(GetSessionID(), data, size);
 	_recvCount = lpnet::LpPacketHandler::Instance()->PushPacket(GetSessionID(), data, size);
+	//LpScopedTimer::Instance()->EndScope(__FUNCTION__);
 
 	m_packetDataPool->Push(data);
 }
@@ -201,6 +207,7 @@ void LpSession::OnWrite(const system::error_code& _error, uint32_t _size) {
 	if (m_trySendCnt >= m_sendCnt) {
 		if (m_socket != nullptr && m_socket->is_open() && GetState() == SessionState::Connected) {
 			SetState(SessionState::Closed);
+			//m_netManager->GetNetTaskQueue(m_threadIndex).push(new NetTask(NetTaskType::Close, this));
 		}
 	}
 }
@@ -234,5 +241,10 @@ void LpSession::Send(char* _buffer, uint32_t _size) {
 
 asio::ip::tcp::socket* LpSession::GetSocket() {
 	return m_socket;
+}
+
+void LpSession::SetSessionID(int _sessionID, int _threadCount) {
+	m_threadIndex = _sessionID % _threadCount;
+	m_sessionID = _sessionID;
 }
 }

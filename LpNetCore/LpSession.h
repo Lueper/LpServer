@@ -4,6 +4,7 @@
 #include "LpBuffer.h"
 #include "LpNetManager.h"
 #include "LpPacketDataPool.h"
+#include "LpPacketHandler.h"
 
 namespace lpnet {
 	using namespace boost;
@@ -18,7 +19,7 @@ public:
 	void Close();
 	void Read();
 	void OnRead(const system::error_code& _error, uint32_t _size);
-	void ProcessReceive();
+	//void ProcessReceive();
 	void ProcessReceive(int& _recvCount);
 	void Write(uint32_t _size);
 	void OnWrite(const system::error_code& _error, uint32_t _size);
@@ -32,9 +33,7 @@ public:
 	asio::ip::tcp::socket* GetSocket();
 	void SetIOBufferSize(uint32_t _size) { m_ioBufferSize = _size; };
 
-	bool IsSended() { return m_isSend; };
-
-	void SetSessionID(int _sessionID) { m_sessionID = _sessionID; };
+	void SetSessionID(int _sessionID, int _threadCount);
 	int GetSessionID() { return m_sessionID; };
 
 	void SetSendCnt(int _cnt) {	m_sendCnt = _cnt; m_trySendCnt = 0; };
@@ -59,20 +58,15 @@ private:
 	LpBuffer* m_writeBuffer;
 	char* m_recvData;
 
-	uint32_t m_ioBufferSize;
-
-	std::recursive_mutex m_cMutex;
-
-	std::atomic<bool> m_isSend = false;
+	SessionState m_state;
+	
+	std::atomic<int> m_threadIndex;
+	std::atomic<int> m_sessionID;
 	std::atomic<int> m_trySendCnt = 0;
 	std::atomic<int> m_sendCnt = 0;
 
-	std::atomic<int> m_writeCnt = 0;
+	uint32_t m_ioBufferSize;
 
-	std::atomic<int> m_sessionID;
-
-	SessionState m_state;
-
-	std::atomic<int> m_sendCount = 0;
+	std::mutex m_mutex;
 };
 }

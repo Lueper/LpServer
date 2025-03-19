@@ -18,7 +18,10 @@ public:
 	void OnAccept(LpSession* _session, const system::error_code& _error);
 	void Close();
 	void Waiting(LpSession* _session);
+	void CloseSession(LpSession* _session);
 
+	void SetIOThreadConunt(int _ioThreadCount) { m_ioThreadCount = _ioThreadCount; };
+	int GetIOThreadCount() { return m_ioThreadCount; };
 	void SetIOBufferMaxSize(uint32_t _size) { BUFFER_MAX_SIZE = _size; };
 	uint32_t GetIOBufferMaxSize() { return BUFFER_MAX_SIZE;	};
 	void SetSessionPoolSize(int _size) { SESSION_POOL_SIZE = _size; };
@@ -39,5 +42,6 @@ private:
 
 	uint32_t BUFFER_MAX_SIZE = 65536;
 	int SESSION_POOL_SIZE = 1000;
+	int m_ioThreadCount = 0;
 };
 }

@@ -55,9 +55,10 @@ void LpAcceptor::AsyncAccept() {
 		return;
 	}
 
-	session->SetSessionID(m_sessionPool->UseSessionID());
+	session->SetSessionID(m_sessionPool->UseSessionID(), GetIOThreadCount());
 	session->SetState(SessionState::Waiting);
 	m_sessionMap.insert(make_pair(session->GetSessionID(), session));
+	LpPacketHandler::Instance()->ResetSequence(session->GetSessionID());
 
 	try {
 		m_acceptor->async_accept(*session->GetSocket()
@@ -82,6 +83,8 @@ void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error)
 		_session->SetState(SessionState::Closed);
 		m_sessionMap.erase(_session->GetSessionID());
 		m_sessionPool->Push(_session);
+
+		//m_netManager->GetNetTaskQueue().push(new NetTask(NetTaskType::Close, this));
 		return;
 	}
 
@@ -95,6 +98,8 @@ void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error)
 		//m_sessionMap.erase(_session->GetSessionID());
 
 		m_sessionPool->Push(_session);
+
+		//m_netManager->GetNetTaskQueue().push(new NetTask(NetTaskType::Close, this));
 
 		std::ostringstream os;
 		os << "#LpAcceptor OnAccept Fail : " << _error.message();
@@ -138,5 +143,18 @@ void LpAcceptor::Waiting(LpSession* _session) {
 void LpAcceptor::Close() {
 	m_running = false;
 	m_acceptor->close();
+}
+
+void LpAcceptor::CloseSession(LpSession* _session) {
+	if (_session == nullptr) {
+		return;
+	}
+
+	auto iter = m_sessionMap.find(_session->GetSessionID());
+	if (iter == m_sessionMap.end()) {
+		return;
+	}
+
+	m_sessionMap.erase(_session->GetSessionID());
 }
 }

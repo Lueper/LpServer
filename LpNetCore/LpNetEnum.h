@@ -10,6 +10,7 @@ enum class SessionState : uint8_t {
 
 enum class NetTaskType : uint8_t {
 	None = 0,
+	Close,
 	Receive,
 	Send
 };

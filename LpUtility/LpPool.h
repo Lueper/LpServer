@@ -5,7 +5,7 @@
 #include <concurrent_queue.h>
 
 namespace lpnet {
-	using namespace concurrency;
+	using namespace Concurrency;
 template <typename T>
 class LpPool {
 public:

@@ -11,6 +11,8 @@ void LpLogger::LOG(ELogType _logType, const wchar_t* _msg) {
 }
 
 void LpLogger::LOG(ELogType _logType, const std::string& _msg) {
+	//std::lock_guard<std::mutex> lock(m_mutex);
+
 	std::ostringstream os;
 	struct _timeb	  _time;
 	tm				   t;

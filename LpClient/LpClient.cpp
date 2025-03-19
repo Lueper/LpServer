@@ -62,7 +62,7 @@ void LpClient::Connect(const std::string _ip, uint16_t _port) {
 
 void LpClient::OnConnect(lpnet::LpSession* _session, const system::error_code& _error) {
 	if (_error) {
-		if (m_connectTryCount >= 10) {
+		if (m_connectTryCount >= 20) {
 			lpnet::LpLogger::LOG_ERROR("#LpSession OnConnect Fail : Connection TryCount Exceeded");
 
 			m_connectTryCount = 0;

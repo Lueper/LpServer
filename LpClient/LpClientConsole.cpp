@@ -100,7 +100,7 @@ void LpClientConsole::ProcessClient(int index) {
 
 		LpClientManager::Instance()->AddTotalCount(lpClient->m_sendCount);
 		std::ostringstream msg;
-		msg << "#LpClient [" << index << "] Send [Send: " << lpClient->m_sendCount
+		msg << "#LpClient [" << index << "] Send [Send:" << lpClient->m_sendCount
 			<< "][Total:" << LpClientManager::Instance()->GetTotalCount() << "]";
 		LpLogger::LOG_DEBUG(msg.str());
 

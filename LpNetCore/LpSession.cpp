@@ -23,11 +23,11 @@ LpSession::LpSession(asio::io_context* _ioContext) : m_ioBufferSize(65536) {
 	m_netManager = new LpNetManager();
 
 	// PacketData char 사이즈는 1024
-	m_packetDataPool = new LpPacketDataPool(16384);
-	for (int i = 0; i < 10; i++) {
-		char* packetData = m_packetDataPool->Alloc();
-		m_packetDataPool->Push(packetData);
-	}
+	//m_packetDataPool = new LpPacketDataPool(65536);
+	//for (int i = 0; i < 10; i++) {
+	//	char* packetData = m_packetDataPool->Alloc();
+	//	m_packetDataPool->Push(packetData);
+	//}
 }
 
 LpSession::LpSession(asio::io_context* _ioContext, uint32_t _size) : m_ioBufferSize(_size) {
@@ -53,7 +53,7 @@ LpSession::~LpSession() {
 	delete m_recvData;
 
 	delete m_netManager;
-	delete m_packetDataPool;
+	//delete m_packetDataPool;
 }
 
 void LpSession::Close() {
@@ -164,7 +164,8 @@ void LpSession::ProcessReceive(int& _recvCount) {
 	// 사용한 사이즈만큼 처리
 	int size = m_readBuffer->GetUseSize();
 
-	char* data = m_packetDataPool->Pop();
+	//char* data = m_packetDataPool->Pop();
+	char* data = new char[size];
 	// ERROR: size가 data의 size를 넘어가버리면 크래시
 	m_readBuffer->Pop(data, size);
 
@@ -173,7 +174,8 @@ void LpSession::ProcessReceive(int& _recvCount) {
 	_recvCount = lpnet::LpPacketHandler::Instance()->PushPacket(GetSessionID(), data, size);
 	//LpScopedTimer::Instance()->EndScope(__FUNCTION__);
 
-	m_packetDataPool->Push(data);
+	//m_packetDataPool->Push(data);
+	//delete[] data;
 }
 
 void LpSession::Write(uint32_t _size) {

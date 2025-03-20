@@ -104,6 +104,7 @@ bool LpPacketHandler::Process(int _sessionID, Packet* _packet) {
 		LpLogger::LOG_ERROR("#LpPacketHandler packet seq is not correct");
 		return false;
 	}
+	SetSequence(_sessionID, packetHeader->seqNum);
 
 	char* packetPayload = _packet->payload;
 	if (packetPayload == nullptr) {
@@ -204,5 +205,16 @@ uint32_t LpPacketHandler::GetSequence(int _sessionID) {
 	else {
 		return iter->second;
 	}
+}
+
+void LpPacketHandler::SetSequence(int _sessionID, uint32_t _seq) {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
+	auto iter = m_sessionSequnceMap.find(_sessionID);
+	if (iter == m_sessionSequnceMap.end()) {
+		return;
+	}
+
+	iter->second = _seq;
 }
 }

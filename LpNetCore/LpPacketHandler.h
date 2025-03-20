@@ -30,6 +30,7 @@ public:
 
 	void ResetSequence(int _sessionID);
 	uint32_t GetSequence(int _sessionID);
+	void SetSequence(int _sessionID, uint32_t _seq);
 
 	void SetIOThreadCount(int _index) { m_ioThreadCount = _index; };
 

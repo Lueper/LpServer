@@ -11,8 +11,6 @@ void LpLogger::LOG(ELogType _logType, const wchar_t* _msg) {
 }
 
 void LpLogger::LOG(ELogType _logType, const std::string& _msg) {
-	//std::lock_guard<std::mutex> lock(m_mutex);
-
 	std::ostringstream os;
 	struct _timeb	  _time;
 	tm				   t;
@@ -65,7 +63,9 @@ void LpLogger::LOG(ELogType _logType, const std::string& _msg) {
 void LpLogger::Update() {
 	std::pair<ELogType, std::string> log;
 
-	m_logQueue.try_pop(log);
+	if (m_logQueue.try_pop(log) == false) {
+		return;
+	}
 
 	Print(log.first, log.second);
 }
@@ -78,8 +78,11 @@ void LpLogger::Print(ELogType _logType, const std::string& _str) {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
 	SetColor(_logType);
-	//std::cout << _str;
-	WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), _str.c_str(), static_cast<DWORD>(_str.size()), NULL, NULL);
+
+	if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), _str.c_str(), static_cast<DWORD>(_str.size()), NULL, NULL)) {
+		std::cerr << "Failed to write to console!" << std::endl;
+	}
+
 	ResetColor();
 }
 

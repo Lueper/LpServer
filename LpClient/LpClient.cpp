@@ -77,6 +77,8 @@ void LpClient::OnConnect(lpnet::LpSession* _session, const system::error_code& _
 
 		m_connectTryCount++;
 
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
 		return;
 	}
 	else {
@@ -151,6 +153,8 @@ void LpClient::CloseSessions() {
 				break;
 			}
 		}
+
+		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 
 	m_sessionMap.clear();
@@ -173,6 +177,8 @@ void LpClient::CheckSessions() {
 				break;
 			}
 		}
+
+		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }
 

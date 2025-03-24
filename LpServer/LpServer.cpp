@@ -106,13 +106,6 @@ void LpServer::Run() {
 
 	// Main 스레드
 	m_mainThread = std::thread(std::bind(&LpServer::ProcessServer, this));
-
-	// I/O Queue 데이터 처리
-	//for (int i = 0; i < m_ioThreadCount; i++) {
-	//for (int i = 0; i < m_threadCount; i++) {
-	//	std::thread* thread = new std::thread(std::bind(&LpServer::ProcessNetTask, this, i));
-	//	m_ioThreadVector.push_back(thread);
-	//}
 }
 
 void LpServer::Stop() {
@@ -167,7 +160,6 @@ void LpServer::ProcessLog() {
 
 void LpServer::ProcessServer() {
 	//while (m_running) {
-	//	lpnet::LpLogger::Update();
-	//	lpnet::LpPacketHandler::Instance()->Update();
+	//
 	//}
 }

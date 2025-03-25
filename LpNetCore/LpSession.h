@@ -19,7 +19,6 @@ public:
 	void Close();
 	void Read();
 	void OnRead(const system::error_code& _error, uint32_t _size);
-	//void ProcessReceive();
 	void ProcessReceive(int& _recvCount);
 	void Write(uint32_t _size);
 	void OnWrite(const system::error_code& _error, uint32_t _size);

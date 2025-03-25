@@ -16,31 +16,19 @@ LpPacketHandler::~LpPacketHandler() {
 }
 
 template <typename T>
-//char* LpPacketHandler::Serialize(const T* _data, uint32_t _offset) {
 char* LpPacketHandler::Serialize(T* _data, uint32_t _offset) {
 	if (_data == nullptr) {
 		return nullptr;
 	}
 
-	//char* data = new char[sizeof(T)];
-	//memcpy_s(data, sizeof(T), _data + _offset, sizeof(T));
-
-	//return data;
-
 	return reinterpret_cast<char*>(_data + _offset);
 }
 
 template <typename T>
-//T* LpPacketHandler::Deserialize(const char* _data, uint32_t _offset) {
 T* LpPacketHandler::Deserialize(char* _data, uint32_t _offset) {
 	if (_data == nullptr) {
 		return nullptr;
 	}
-
-	//T* data = (T*)malloc(sizeof(T));
-	//memcpy_s(data, sizeof(T), _data + _offset, sizeof(T));
-
-	//return data;
 
 	return reinterpret_cast<T*>(_data + _offset);
 }
@@ -170,11 +158,8 @@ int LpPacketHandler::PushPacket(int _sessionID, char* _data, uint32_t _size) {
 			packet = (Packet*)malloc(sizeof(Packet));
 		}
 
-		//packet = (Packet*)_data;
 		packet = Deserialize<Packet>(_data, sizeof(Packet) * recvCount);
 		m_packetQueue[_sessionID % m_ioThreadCount].push(std::make_pair(_sessionID, packet));
-		
-		//Process(_sessionID, packet);
 
 		recvSize -= packetSize;
 		recvCount++;

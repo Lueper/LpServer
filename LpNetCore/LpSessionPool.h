@@ -14,7 +14,6 @@ public:
 	LpSession* Pop();
 	void Push(LpSession* _session);
 
-	// TODO: private으로 수정
 	int UseSessionID();
 
 private:

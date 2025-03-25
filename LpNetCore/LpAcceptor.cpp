@@ -84,7 +84,6 @@ void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error)
 		m_sessionMap.erase(_session->GetSessionID());
 		m_sessionPool->Push(_session);
 
-		//m_netManager->GetNetTaskQueue().push(new NetTask(NetTaskType::Close, this));
 		return;
 	}
 
@@ -95,11 +94,8 @@ void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error)
 		}
 
 		_session->SetState(SessionState::Closed);
-		//m_sessionMap.erase(_session->GetSessionID());
 
 		m_sessionPool->Push(_session);
-
-		//m_netManager->GetNetTaskQueue().push(new NetTask(NetTaskType::Close, this));
 
 		std::ostringstream os;
 		os << "#LpAcceptor OnAccept Fail : " << _error.message();
@@ -114,11 +110,8 @@ void LpAcceptor::OnAccept(LpSession* _session, const system::error_code& _error)
 	// TODO: Process loop·Î º¯°æ
 	_session->Read();
 
-	//LpLogger::LOG_INFO("#LpAcceptor OnAccept");
-
 	if (m_acceptor->is_open() == true) {
 		AsyncAccept();
-		//Waiting(_session);
 	}
 }
 

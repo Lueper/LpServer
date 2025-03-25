@@ -38,8 +38,6 @@ private:
 	LpSessionPool* m_sessionPool;
 	LpNetManager* m_netManager;
 
-	//std::unordered_map<int, LpSession*> m_sessionMap;
-
 	uint32_t BUFFER_MAX_SIZE = 65536;
 	int SESSION_POOL_SIZE = 1000;
 	int m_ioThreadCount = 0;

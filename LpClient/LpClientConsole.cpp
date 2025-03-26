@@ -108,7 +108,7 @@ void LpClientConsole::ProcessClient(int index) {
 
 		i++;
 
-		//std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 }
 

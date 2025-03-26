@@ -56,16 +56,14 @@ void LpNetManager::Process(int _index) {
 					m_totalCount += recvCount;
 
 					// 1. 세션별 Count 출력
-					//if (m_totalCount % 10000 == 0) {
-					//std::ostringstream msg;
-					//msg << "#LpSession Receive : [ID: " << task->m_session->GetSessionID()
-					//	<< "][Count: " << totalCount
-					//	<< "][Total: " << m_totalCount
-					//	<< "]";
-					//LpLogger::LOG_DEBUG(msg.str());
-					//}
-
-
+					if (m_totalCount % 1000 == 0) {
+						std::ostringstream msg;
+						msg << "#LpSession Receive : [ID: " << task->m_session->GetSessionID()
+							<< "][Count: " << totalCount
+							<< "][Total: " << m_totalCount
+							<< "]";
+						LpLogger::LOG_DEBUG(msg.str());
+					}
 				}
 				break;
 			}

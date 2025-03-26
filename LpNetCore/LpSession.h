@@ -44,6 +44,9 @@ public:
 
 	void SetNetManager(LpNetManager* _manager) { m_netManager = _manager; };
 	LpNetManager* GetNetManager() { return m_netManager; };
+
+	char* PopData(uint32_t _size);
+	void PushData(char* _data);
 private:
 	asio::ip::tcp::socket* m_socket;
 	asio::ip::tcp::endpoint* m_endpoint;

@@ -5,7 +5,7 @@ namespace lpnet {
 LpPacketHandler::LpPacketHandler() {
 	m_sendCount = 0;
 
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 1000; i++) {
 		Packet* packet = (Packet*)malloc(sizeof(Packet));
 		m_recvPacketPool.push(packet);
 	}
@@ -140,8 +140,8 @@ void LpPacketHandler::ProcessSend(Packet* _packet, uint32_t _size, char** _data)
 	//LpLogger::LOG_DEBUG(msg.str());
 }
 
-int LpPacketHandler::PushPacket(int _sessionID, char* _data, uint32_t _size) {
-	std::lock_guard<std::mutex> lock(m_mutex);
+int LpPacketHandler::PushPacket(int _sessionID, const char* _data, uint32_t _size) {
+	//std::lock_guard<std::mutex> lock(m_mutex);
 
 	if (_data == nullptr) {
 		LpLogger::LOG_ERROR("#LpPacketHandler PacketData is null");
@@ -152,13 +152,19 @@ int LpPacketHandler::PushPacket(int _sessionID, char* _data, uint32_t _size) {
 	uint32_t recvSize = _size;
 	uint32_t packetSize = sizeof(Packet);
 
+	char* packetData = nullptr;
+
 	while (recvSize >= packetSize) {
 		Packet* packet = nullptr;
 		if (m_recvPacketPool.try_pop(packet) == false) {
 			packet = (Packet*)malloc(sizeof(Packet));
 		}
 
-		packet = Deserialize<Packet>(_data, sizeof(Packet) * recvCount);
+		int offset = sizeof(Packet) * recvCount;
+		memcpy(packet, _data + offset, sizeof(Packet));
+		//packet = Deserialize<Packet>(packetData);
+
+		//packet = Deserialize<Packet>(_data, sizeof(Packet) * recvCount);
 		m_packetQueue[_sessionID % m_ioThreadCount].push(std::make_pair(_sessionID, packet));
 
 		recvSize -= packetSize;
@@ -173,6 +179,8 @@ int LpPacketHandler::PushPacket(int _sessionID, char* _data, uint32_t _size) {
 }
 
 void LpPacketHandler::ResetSequence(int _sessionID) {
+	//std::lock_guard<std::mutex> lock(m_mutex);
+
 	auto iter = m_sessionSequnceMap.find(_sessionID);
 	if (iter == m_sessionSequnceMap.end()) {
 		m_sessionSequnceMap.insert(std::make_pair(_sessionID, 0));
@@ -183,6 +191,8 @@ void LpPacketHandler::ResetSequence(int _sessionID) {
 }
 
 uint32_t LpPacketHandler::GetSequence(int _sessionID) {
+	//std::lock_guard<std::mutex> lock(m_mutex);
+
 	auto iter = m_sessionSequnceMap.find(_sessionID);
 	if (iter == m_sessionSequnceMap.end()) {
 		return -1;
@@ -193,7 +203,7 @@ uint32_t LpPacketHandler::GetSequence(int _sessionID) {
 }
 
 void LpPacketHandler::SetSequence(int _sessionID, uint32_t _seq) {
-	std::lock_guard<std::mutex> lock(m_mutex);
+	//std::lock_guard<std::mutex> lock(m_mutex);
 
 	auto iter = m_sessionSequnceMap.find(_sessionID);
 	if (iter == m_sessionSequnceMap.end()) {

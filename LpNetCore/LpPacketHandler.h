@@ -26,7 +26,7 @@ public:
 	bool Process(int _sessionID, Packet* _packet);
 	void ProcessSend(Packet* _packet, uint32_t _size, char** _data);
 
-	int PushPacket(int _sessionID, char* _data, uint32_t _size);
+	int PushPacket(int _sessionID, const char* _data, uint32_t _size);
 
 	void ResetSequence(int _sessionID);
 	uint32_t GetSequence(int _sessionID);

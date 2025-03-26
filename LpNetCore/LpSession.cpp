@@ -17,11 +17,11 @@ LpSession::LpSession(asio::io_context* _ioContext) : m_ioBufferSize(65536) {
 	m_netManager = new LpNetManager();
 
 	// PacketData char 사이즈는 1024
-	m_packetDataPool = new LpPacketDataPool(65536);
-	for (int i = 0; i < 10; i++) {
-		char* packetData = m_packetDataPool->Alloc();
-		m_packetDataPool->Push(packetData);
-	}
+	//m_packetDataPool = new LpPacketDataPool(65536);
+	//for (int i = 0; i < 1; i++) {
+	//	char* packetData = m_packetDataPool->Alloc();
+	//	m_packetDataPool->Push(packetData);
+	//}
 }
 
 LpSession::LpSession(asio::io_context* _ioContext, uint32_t _size) : m_ioBufferSize(_size) {
@@ -47,7 +47,7 @@ LpSession::~LpSession() {
 	delete m_recvData;
 
 	delete m_netManager;
-	delete m_packetDataPool;
+	//delete m_packetDataPool;
 }
 
 void LpSession::Close() {
@@ -60,8 +60,9 @@ void LpSession::Read() {
 	if (m_socket->is_open() == false)
 		return;
 
-	m_socket->async_read_some(asio::mutable_buffer(m_recvBuffer, m_readBuffer->GetAvailableSize())
-	//m_socket->async_read_some(asio::mutable_buffer(m_recvBuffer, 65536)
+	uint32_t readSize = m_readBuffer->GetAvailableSize();
+
+	m_socket->async_read_some(asio::mutable_buffer(m_recvBuffer, (readSize > 65536) ? 65536 : readSize)
 		, std::bind(&LpSession::OnRead, this, std::placeholders::_1, std::placeholders::_2));
 }
 
@@ -90,18 +91,20 @@ void LpSession::OnRead(const system::error_code& _error, uint32_t _size) {
 }
 
 void LpSession::ProcessReceive(int& _recvCount) {
-	std::lock_guard<std::mutex> lock(m_mutex);
+	//std::lock_guard<std::mutex> lock(m_mutex);
 
 	// 사용한 사이즈만큼 처리
 	int size = m_readBuffer->GetUseSize();
 
-	char* data = m_packetDataPool->Pop();
 	//char* data = new char[size];
+	//char* data = m_packetDataPool->Pop();
+	char* data = PopData(size);
 
 	m_readBuffer->Pop(data, size);
 	_recvCount = lpnet::LpPacketHandler::Instance()->PushPacket(GetSessionID(), data, size);
 
-	m_packetDataPool->Push(data);
+	//m_packetDataPool->Push(data);
+	//PushData(data);
 }
 
 void LpSession::Write(uint32_t _size) {
@@ -166,5 +169,26 @@ asio::ip::tcp::socket* LpSession::GetSocket() {
 void LpSession::SetSessionID(int _sessionID, int _threadCount) {
 	m_threadIndex = _sessionID % _threadCount;
 	m_sessionID = _sessionID;
+}
+
+char* LpSession::PopData(uint32_t _size) {
+	if (_size > m_ioBufferSize) {
+		char* data = (char*)realloc(m_recvData, _size);
+		if (data == nullptr) {
+			return nullptr;
+		}
+		else {
+			m_ioBufferSize = _size;
+			m_recvData = data;
+		}
+	}
+
+	memset(m_recvData, 0, sizeof(m_recvData));
+
+	return m_recvData;
+}
+
+void LpSession::PushData(char* _data) {
+
 }
 }
